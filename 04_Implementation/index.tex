@@ -6,12 +6,12 @@
     \item Talk about the line-to-state methodology used for the HLS. One line of code translates to one state in hardware, and that the resulting generated code is simply a giant state machine which goes from state to state until it's complete.
     \item Talk about how each function translates to a module being instantiated in hardware. When the function call state is reached, the start signal for that module is asserted and the top level hardware waits until it's done signal is asserted.
     \item These submodules are generated in the same way as the top level module, and they can have their own submodules which would correspond to function calls with that function.
-    \item Delve further into how the split and split_fpga keywords work. The grammar has been modified and allows users to 'call' multiple modules at the same time.
+    \item Delve further into how the split and split\_fpga keywords work. The grammar has been modified and allows users to 'call' multiple modules at the same time.
     \item In the 'split' case the start signal for multiple modules is asserted in the same state and then the system waits until all submodules finish execution.
-    \item The same thing happens in the 'split_fpga' case, multiple start signals are asserted and when all the submodules have asserted their done signal the system carries on execution. The difference however is that when using the split_fpga construct, the first function call is not translated to normal submodule instantiation in hardware, but rather a special submodule which connects to the interconnect hardware.
+    \item The same thing happens in the \'split\_fpga\' case, multiple start signals are asserted and when all the submodules have asserted their done signal the system carries on execution. The difference however is that when using the split\_fpga construct, the first function call is not translated to a normal submodule instantiation in hardware, but rather a special submodule which connects to the interconnect hardware.
     \item This special submodule, takes its inputs and an assigned opcode and passes it to the interconnect hardware which then initiates a remote function call. Once, the function is processed off-chip the interconnect receives the data passes it back to the special submodule. The special submodule then asserts its done signal alongside the data it received from the interconnect, and the main system continues operation.
     \item This method means that the main system does not need to distinguish between submodules being processed on-chip or off-chip making the resultant hardware more straightforward.
-    \item Also talk about how the hardware for the second FPGA is generated
+    \item Also talk about how the hardware for the second FPGA is generated.
 \end{itemize}
 
 \section{Inter-connect}
@@ -28,5 +28,4 @@
 \begin{itemize}
     \item Small section, all that can be talked about is that the Avalon-MM interface protocol was used to control Intel's provided SPI Core.
     \item Could talk about setbacks using Ethernet, and how the FPGA of choice had an HPS which meant the Ethernet port was not accessible through the FPGA pins.
-    \item 
 \end{itemize}
