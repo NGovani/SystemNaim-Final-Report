@@ -1,0 +1,31 @@
+\chapter{Project Design}
+
+\begin{itemize}
+    \item Each section below will explore what the intended use for that part of the project is.
+    \item What was the design? Why was it designed like this? What advantages or disadvantages are the result of this design choice.
+    \item Also explain why only a 2 FPGA solution was implemented
+\end{itemize}
+
+\section{HLS}
+
+\begin{itemize}
+    \item Talk about the HLS at a very high level. Explain its simply used as a platform with the focus of the project heavily being on the communication between FPGAs.
+    \item As a result the HLS is very straightforward and not very optimized. It doesn't need to be as we're just trying to prove you can automate the process of creating a multi-FPGA system, so that they are more accessible and faster to set up.
+    \item One very important point however, is that functions create the boundary between on-chip and off-chip processing. This is because the concept of function calls lends itself very nicely to performing off-chip calculations.
+\end{itemize}
+
+\section{Inter-connect}
+
+\begin{itemize}
+    \item In this section we talk about the interconnect between the HLS and the communication channel.
+    \item This section was added in order to create an abstraction between the HLS and the off-chip processing. As a result it allows for different communication channels to be used without the HLS tool requiring drastic changes. As long as the communication hardware(e.g. SPI, Ethernet, PCIE) adheres to the communication protocol laid out in this section they can all be used by the HLS tool.
+    \item This also allows the HLS tool to be discarded in favour of a more optimized version. The new HLS tool would need to adhere to the same protocols which may be limiting.
+    \item This might be more of an implementation note, but the interconnect is split into two parts: one is HLS facing and one communication channel facing. The former supplies data to the latter one at a time potentially allowing for a stream of data to be sent over the channel.
+\end{itemize}
+
+\section{Communication Channel}
+
+\begin{itemize}
+    \item This section would talk about the benefits of different communication channels. SPI, Ethernet and PCIE would be discussed.
+    \item Maybe talk about how each of these channels usually have a pre-built core that this project will use and that the main design challenge is creating hardware which can interface with the core.
+\end{itemize}

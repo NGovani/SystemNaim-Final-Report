@@ -1,0 +1,61 @@
+\documentclass[a4paper, twoside]{report}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{csquotes}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{hyperref}
+\hypersetup{colorlinks=false}
+\usepackage{lscape}
+\usepackage{subfigure}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[ruled, vlined]{algorithm2e}
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{tikz}
+%\usepackage{algpseudocode}
+\usepackage{tabularx}
+%\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{biblatex}
+\usepackage{enumitem}
+\usepackage{pgfgantt}
+\usepackage{rotating}
+\addbibresource{main.bib}
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;}
+
+
+\newtheorem{definition}{Definition}
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=2cm]{geometry}
+
+\begin{document}
+    \setlength{\parskip}{4pt}
+    % The Title, Author Name, Date, and abstract go here
+    \title{SystemNaim FYP Final Report}
+    \author{Naim Govani}
+    \date{\today}
+    \maketitle
+
+    \tableofcontents    
+    % if you are adding a new chapter, create a new folder in the root directory of the project
+    % it should begin with a two digit number, followed by an underscore and the name of the section.
+    % This keeps the order of the sections in the side view in keeping with the order of the document.
+    
+    
+    \input{00_abstract/index.tex}
+    \input{01_project_intro/index.tex}
+    \input{02_background/index.tex}
+    \input{03_design/index.tex}
+    \input{04_implementation/index.tex}
+    \input{05_evaluation/index.tex}
+    \input{06_future_work/index.tex}
+    % add more sections here!
+
+\printbibliography
+
+\end{document}

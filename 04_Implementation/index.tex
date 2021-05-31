@@ -1,0 +1,31 @@
+\chapter{Implementation}
+
+\section{HLS}
+
+\begin{itemize}
+    \item Talk about the line-to-state methodology used for the HLS. One line of code translates to one state in hardware, and that the resulting generated code is simply a giant state machine which goes from state to state until it's complete.
+    \item Talk about how each function translates to a module being instantiated in hardware. When the function call state is reached, the start signal for that module is asserted and the top level hardware waits until it's done signal is asserted.
+    \item These submodules are generated in the same way as the top level module, and they can have their own submodules which would correspond to function calls with that function.
+    \item Delve further into how the split and split\_fpga keywords work. The grammar has been modified and allows users to 'call' multiple modules at the same time.
+    \item In the 'split' case the start signal for multiple modules is asserted in the same state and then the system waits until all submodules finish execution.
+    \item The same thing happens in the \'split\_fpga\' case, multiple start signals are asserted and when all the submodules have asserted their done signal the system carries on execution. The difference however is that when using the split\_fpga construct, the first function call is not translated to a normal submodule instantiation in hardware, but rather a special submodule which connects to the interconnect hardware.
+    \item This special submodule, takes its inputs and an assigned opcode and passes it to the interconnect hardware which then initiates a remote function call. Once, the function is processed off-chip the interconnect receives the data passes it back to the special submodule. The special submodule then asserts its done signal alongside the data it received from the interconnect, and the main system continues operation.
+    \item This method means that the main system does not need to distinguish between submodules being processed on-chip or off-chip making the resultant hardware more straightforward.
+    \item Also talk about how the hardware for the second FPGA is generated.
+\end{itemize}
+
+\section{Inter-connect}
+
+\begin{itemize}
+    \item The interconnect consists of 3 parts. A multiplexer which allows multiple modules from the main system to connect to the interconnect. A HLS facing module(Interconnect-A) which takes data from the multiplexer. And a channel facing module (Interconnect-B) which is used to interface with a communication IP core. The last two are connected to each other through a custom interface.
+    \item This section is relatively straightforward, Interconnect-A takes all the data it needs from the multiplexer in one cycle and then passes the opcode and two operands one transaction at a time. I.e. Interconnect-B transmits one piece of data and then when it's complete it grabs the next and transfers until all data is sent.
+    \item Once the data is sent the interconnect goes into 'return' mode, where Interconnect B waits for data to be returned on the channel. In the case of SPI this means it must constantly send data to the slave and read the return data (The slave can only send data once the master initiates a transaction). If the MSB of the return data is high the data is valid and Interconnect-B sends the data to Interconnect-A. The role of the interconnect is then done and the multiplexer sends the data back to the main system.
+    \item A similar setup exists on the 2nd FPGA, except with the roles slightly reversed. Interconnect-B waits for data to come on the channel which is then passed to Interconnect-A. Interconnect-A  stores the data until it has got an opcode and two operands. It then passes the data to a demultiplexer, which asserts the start signal of the appropriate submodule, depending on the opcode, and passes it the operands. The submodules in this hardware are generated in the same manner as a submodule on the main system, thus reducing complexity. Once, the submodule has completed computation data is passed back all the way to the main chip.
+\end{itemize}
+
+\section{Communication Channel}
+
+\begin{itemize}
+    \item Small section, all that can be talked about is that the Avalon-MM interface protocol was used to control Intel's provided SPI Core.
+    \item Could talk about setbacks using Ethernet, and how the FPGA of choice had an HPS which meant the Ethernet port was not accessible through the FPGA pins.
+\end{itemize}
