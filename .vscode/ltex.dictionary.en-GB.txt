@@ -4,3 +4,9 @@ SystemNaim
 split-fpga
 MTSC
 MTMC
+DSPs
+LUTs
+STSC
+guage
+Quartus
+SystemVerilog
