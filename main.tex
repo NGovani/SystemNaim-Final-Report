@@ -28,11 +28,55 @@
 \usepackage{cleveref}
 \usepackage{rotating}
 \usepackage{threeparttable}
+\usepackage{appendix}
+\usepackage{xcolor}
+\usepackage{bluespec}
+\usepackage{minted}
+\usepackage[compatibility=false]{caption}
+\usepackage{dirtree}
+
+
+\usepackage{array}
+
+\newenvironment{conditions}
+  {\par\vspace{\abovedisplayskip}\noindent\begin{tabular}{>{$}l<{$} @{${}={}$} l}}
+  {\end{tabular}\par\vspace{\belowdisplayskip}}
+
+
 \addbibresource{main.bib}
 \def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;}
 
+\usemintedstyle{perldoc}
 
-\newtheorem{definition}{Definition}
+\lstdefinestyle{verilog-style}
+{
+    language=Verilog,
+    basicstyle=\small\ttfamily,
+    keywordstyle=\color{vblue},
+    identifierstyle=\color{black},
+    commentstyle=\color{vgreen},
+    numbers=left,
+    numberstyle=\tiny\color{black},
+    numbersep=10pt,
+    tabsize=8,
+    moredelim=*[s][\colorIndex]{[}{]},
+    literate=*{:}{:}1
+}
+
+\makeatletter
+\newcommand*\@lbracket{[}
+\newcommand*\@rbracket{]}
+\newcommand*\@colon{:}
+\newcommand*\colorIndex{%
+    \edef\@temp{\the\lst@token}%
+    \ifx\@temp\@lbracket \color{black}%
+    \else\ifx\@temp\@rbracket \color{black}%
+    \else\ifx\@temp\@colon \color{black}%
+    \else \color{vorange}%
+    \fi\fi\fi
+}
+\makeatother
+
 
 %% Sets page size and margins
 \usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=2cm]{geometry}
@@ -58,7 +102,12 @@
     \input{04_implementation/index.tex}
     \input{05_evaluation/index.tex}
     \input{06_future_work/index.tex}
+    \input{07_conclusion/index.tex}
     % add more sections here!
+
+    \begin{appendices}
+        \input{08_code_listings/index.tex}
+    \end{appendices}
 
 \printbibliography
 

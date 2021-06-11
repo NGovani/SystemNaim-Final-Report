@@ -30,7 +30,7 @@ The latter paper, \cite{707888}, opts to place a psuedo-processor on each FPGA w
 
 \subsection{Introduction}
 
-Different HLS tools have vastly different implementations \cite{7368920} and many of them, especially commercial tools, do not reveal their methodologies. LegUp\cite{legup} for example, compiles the input source code using the LLVM compiler and then profiles it on a modified MIPS CPU emulator in order identify which parts of the code would benefit from hardware acceleration. It then synthesis those specific parts to dedicated hardware, while the rest of the code is run using a MIPS CPU programmed onto the FPGA.
+Different HLS tools have vastly different implementations \cite{7368920} and many of them, especially commercial tools, do not reveal their methodologies. LegUp\cite{legup} for example, compiles the input source code using the LLVM compiler and then profiles it on a modified MIPS CPU emulator in order identify which parts of the code would benefit from hardware acceleration. It then synthesises those specific parts to dedicated hardware, while the rest of the code is run using a MIPS CPU programmed onto the FPGA.
 
 Vivado HLS, on the other hand, makes no attempt to suggest to the user where acceleration is possible. Rather, it merely gives you tools known as PRAGMAS, found in \cite{vivado-optmisation-manual}, to help the compiler better understand how to convert the C code to hardware. The output is then a set Verilog files the user can implement as they see fit, though it is recommended to use the Vivado Design Suite \cite{vivado-design-suite-manual} as part of the development cycle. As of now, Vivado has not revealed how they go from C to Verilog.
 

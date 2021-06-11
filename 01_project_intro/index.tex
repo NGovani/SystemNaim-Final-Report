@@ -1,17 +1,63 @@
-\chapter{Project Introduction}
+\chapter{Introduction to SystemNaim}
+
+
+\section{Aims}
+
+SystemNaim is a HLS tool which allows users to create multi-FPGA systems. We would like to prove, through SystemNaim, that it is possible to give a larger group of people the ability to utilize the benefits of multi-FPGA system without requiring them to spend months learning to develop hardware. In the future, users, such as Researches and Businesses, should be able to create large systems with multiple FPGAs working in tandem without the need for exorbitant developement times, and we hope that the investigations and conclusions laid out in this paper act as a stepping stone for future research in this field.
+
+\section{Motivation}
+
+Before we go into detail about the design goals of the tool, we must first understand the necessity of it. This section explores why FPGAs, HLS tools and multi-FPGA systems are each important areas of research and gives insight into the motivation for this project.
+
+\subsection{FPGAs}
+
+FPGAs(Field-Programmable Gate Arrays) have been around for since the 1980s and have served various purposes over the years\cite{fpga-history}. They boast a faster time-to-market than ASICs whilst still providing a performance boost when compared to software running on a GPPs(General purpose processor). These features, amongst others, make FPGAs favourable for a variety of uses including:
+\begin{itemize}
+    \item Prototyping.
+    \item Hardware Emulation.
+    \item Data processing for data centres.
+    \item High-frequency trading.
+ \end{itemize}
+
+In more technical terms an FPGA is a large collection of LE(Logic Elements) which can programmed using an HDL(Hardware Description Language) such as Verilog. Each of these LE can only perform a small amount of logic such as implementing an AND/OR gate but an average FPGA comes with tens of thousands of them allowing for large amounts of logic to be strung together. The important fact is that, once programmed, an FPGA becomes a piece of hardware dedicated to performing a fixed operation and thus, if programmed correctly, gives lower latencies and higher-throughputs alongside lower power requirements than the same operation being conducted in software on a GPP. In summary, if a user is looking for a way to decrease the latency, or increase the throughput, of a rapidly changing system, an FPGA would definitely be a strong contender for a solution. 
+
+\subsection{HLS Tools}
+
+Notice however, that in the section above it was explicitly mentioned that benefits of using an FPGA only came if the device in question is programmed correctly. Now correctness in this context refers to multiple things. Firstly, the operation must be suited to an FPGA. This can include data access patterns or whether the application has a large amount of parallelism the programmer can exploit, but the key takeaway is that not all programs are suited to being executed on an FPGA with some performing better on modern GPPs, and it is thus up to the designer/programmer to make this judgement call.
+
+In this report, however, we are more concerned about another aspect of correctness; the difficulty of writing HDL code. FPGA development is notoriously difficult due to the lack of individuals with the skills to write HDL code specifically targeted at FPGAs. The cause of this issue is two-fold, one is that FPGA usage isn't very well known and the second being the paradigm shift between programming in languages such as: C++ or python, and programming in a HDL like Verilog. An entire report could be written to explain the differences between hardware and software programming, but the main point is that it is very difficult to shift between the two paradigms which results in fewer people who have the skills to exploit the benefits of an FPGA effectively. To help solve this problem, HLS(High-Level Synthesis) tools have been actively researched over the last 40 years~\cite{5209959}, and now we have a variety of products such as Vivado HLS from Xilinx, Intel® High Level Synthesis Compiler from Intel and LegUp from Microchip.
+
+These tools allow users to write code in C++/C, which is then transpiled to Verilog for use on an FPGA. In order to create optimised code these tools include configuration options and extra syntax, building upon the language they are based in, thus allowing the programmer more control over how their code is turned into hardware, this addition does mean there is some learning curve to using these tools however it is much less than going from C++ to Verilog. 
+
+Overall these tools allows for a much easier transfer of skills from normal programming to hardware design, paving the way for a larger part of industry and academia to gain the potential benefits of using an FPGA. Therefore, research into making these tools more accessible and on par, performance wise, with pure Verilog design is very appealing when one considers the rising usage FPGAs in variety of fields\cite{fpga-market}.
+
+\subsection{Multi-FPGA Systems}
+
+One of the major limitations of any hardware implementation is the resources available to a programmer on the device. Examples of such resources are:
 
 \begin{itemize}
-    \item Introduce aim of project: To prove it is possible to create a multi-fpga system through an HLS Tool.
-    \item There are benefits to completing the aim above and that will be explored later
-    \item Maybe talk about the fact that the HLS part isn't that important to the investigation. Likely to introduce the concept and then elaborate further in the design section.
-    \item Also talk about what contributions we are aiming to achieve:
-    \item Split below into two parts, one is project aims/objetives (questions) and one into what was actually accomplished and produces
-    \begin{itemize}
-        \item HLS tools make it easier for users to create dedicated hardware.
-        \item It is possible to automate the process of creating a multi-FPGA system and integrate it into a HLS tool
-        \item This automated process can provide a performance boost and does not add too much of an overhead.
-        \item In summary, we can make it easier for people to create a multi-FPGA system, thus allowing people who could benefit from such a thing(Researches, ...?), to do so without requiring an exorbitant amount of extra man-power.
-        \item The hls tool is a platform for Researches
-        \item the interconnect
-    \end{itemize}
+    \item \textbf{BRAMs}: For on-chip storage.
+    \item \textbf{DRAM Bandwidth}: For accessing off-chip memory.
+    \item \textbf{DSPs}: For floating-point arithmetic.
+    \item \textbf{LUTs}: For logic processing.
 \end{itemize}
+
+If the programmer finds themselves having exhausted the resources on the board but still in need of more, they have a few options that they can explore. The first and usually the most practical is to re-structure the design. This may include adding pipeline stages to remove timing violations, moving to data storage off-chip to increase on-chip memory space or reusing modules in multiple parts of the design to save on LUTs. All optimisations while viable do have downsides and considerations the programmer must take in to account before proceeding. The next option would be to get a device with more resources available, while ideal this option may not be possible either because the new device would be too expensive or more likely the programmer has been given a specification and a part of it is to use this specific device. The third option and the one of interest to this report is to use multiple FPGAs in parallel to compute different parts of the syste, thus giving the programmer access to more resources.
+
+Utilising a multi-FPGA system to overcome the limitations of a single FPGA has been the focal point for many research fronts including: DNN Inference\cite{10.1145/3358192}, Energy Conversion System Simulation\cite{8822485}, Large Graph Processing\cite{10.1145/3020078.3021739}, and CNN Acceleration \cite{10.1145/3337821.3337846} and thus proves there is benefit to allowing more people access to such systems. There are of course drawbacks for this method such as the overhead communication cost between the two FPGAs and those will be explored later in the report.
+
+
+\section{Further Contributions}
+
+We hope that this paper can convince readers that giving more people the ability to implement multi-FPGA systems is not only a benefical endeavour but also a realistic one. However, we don't think that will be the only contribution this project makes. Beyond laying a platform for future investigations, we'd like to present two additional results of this project. The first is the HLS tool developed, which forms the basis of SystemNaim. The software created for the purpose of converting C code to Verilog is straightforward and barebones, as will be explored in later sections, but this comes with the benefit of it also being easy to modify and develop further. We hope it can be used as a platform, to either teach about methods of transpiling software to HDL or as basis for further research in the HLS sphere.
+
+The second additional contribution is the interconnect designed to connect the HLS to the communication channel. The implementation for it will be discussed in another section, however, it should be noted that it has been designed with modularity in mind to allow it to be used across different systems. Either with different communication channels or with different HLS tools, or even within a dedicated hardware system as an IP core, it will hopefully ease the process of creating a multi-FPGA system. 
+
+Before you continue I'd like to thank you in advance for reading this paper, and I believe that if you keep the aim's and intended contributions for this project in mind as you read this paper, you will find some insightful results and leave knowing more than you did when you started.
+
+
+
+
+
+
+

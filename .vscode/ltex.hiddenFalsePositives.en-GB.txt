@@ -1,0 +1,8 @@
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qholda = hls_test_func_a(h, n/2); holdb = hls_test_func_b(h, (n/2 - 1));\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_GB","sentence":"^\\Qholda = hls_test_func_a(h, n/2); holdb = hls_test_func_b(h, (n/2 - 1)); holda = hls_test_func_a(h, n/2); holdb = hls_test_func_b(h, (n/2 - 1));\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qholda = hls_test_func_a(h, n/2); holdb = hls_test_func_b(h, (n/2 - 1)); holda = hls_test_func_a(h, n/2); holdb = hls_test_func_b(h, (n/2 - 1));\\E$"}
+{"rule":"WORD_CONTAINS_UNDERSCORE","sentence":"^\\QNote: The first function in a “split_fpga”\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qsplit_fpga holda = <0>hls_test_func_a(h, n); holdb = <1>hls_test_func_b(h, n); holdc = <2>hls_test_func_c(h, n); holdd = <3>hls_test_func_d(h, n); Method of allowing user to dictate which child FPGA a function is called on\\E$"}
+{"rule":"WHETHER","sentence":"^\\QWhen allowing for systems with 3+ FPGAs a decision has to be made as to whether the user should decide which off-chip functions go on which child FPGA.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_GB","sentence":"^\\Qsplit_FPGA holda = <0>hls_test_func_a(h, n); holdb = <1>hls_test_func_b(h, n); holdc = <2>hls_test_func_c(h, n); holdd = <3>hls_test_func_d(h, n); Method of allowing user to dictate which child FPGA a function is called on\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_GB","sentence":"^\\Qsplit_fpga holda = <0>hls_test_func_a(h, n); holdb = <1>hls_test_func_b(h, n); holdc = <2>hls_test_func_c(h, n); holdd = <3>hls_test_func_d(h, n); Method of allowing user to dictate which child FPGA a function is called on\\E$"}

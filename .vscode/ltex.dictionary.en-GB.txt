@@ -10,3 +10,8 @@ STSC
 guage
 Quartus
 SystemVerilog
+MISO
+MOSI
+SSEN
+pipelining
+unpipelined

@@ -1,0 +1,64 @@
+\chapter{Code Listings}
+
+\begin{figure}[!h]
+    \begin{minipage}{0.45\textwidth}
+    \centering
+    \begin{minted}{c}
+holda = hls_test_func_a(h, n/2);
+holdb = hls_test_func_b(h, (n/2 - 1));
+    \end{minted}
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+    \centering
+    \begin{minted}{c}
+    split{
+        holda = hls_test_func_a(h, n/2);
+        holdb = hls_test_func_b(h, (n/2 - 1));
+    }
+    \end{minted}
+    \end{minipage}
+    \captionof{listing}{How to call functions in parallel in SystemNaim. \textit{Left is original, right is modified code}}
+     \label{lst:org_to_par}
+\end{figure}
+
+\begin{figure}[!h]
+    \begin{minipage}{0.47\textwidth}
+    \centering
+    \begin{minted}{c}
+split{
+    holda = hls_test_func_a(h, n/2);
+    holdb = hls_test_func_b(h, (n/2 - 1));
+}
+    \end{minted}
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+    \centering
+    \begin{minted}{c}
+    split_fpga{
+        holda = hls_test_func_a(h, n/2);
+        holdb = hls_test_func_b(h, (n/2 - 1));
+    }
+    \end{minted}
+    \end{minipage}
+    \captionof{listing}{How to call functions off-chip and in parallel in SystemNaim. \textit{On the left functions are run parallel on the same FPGA, on the right the first function is called off-chip}}
+     \label{lst:par_to_off}
+\end{figure}
+
+\begin{listing}
+    \inputminted[]{c}{08_code_listings/code/integration_seq.c}
+    \caption{C code for Composite Simpson integration. Note, no parallelism is used here. }
+    \label{lst:c_simp_st}
+\end{listing}
+
+
+\begin{listing}
+    \inputminted[]{c}{08_code_listings/code/host_fpga.c}
+    \caption{C code used in NIOS II for Eclipse to run the parent FPGA }
+    \label{lst:parent_code}
+\end{listing}
+
+\begin{listing}
+    \inputminted[]{c}{08_code_listings/code/child_fpga.c}
+    \caption{C code used in NIOS II for Eclipse to run the child FPGA }
+    \label{lst:child_code}
+\end{listing}

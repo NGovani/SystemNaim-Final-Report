@@ -1,21 +1,83 @@
 \chapter{Future Work}
 
-\begin{itemize}
-    \item Use information from models and evaluation to feed into this
-\end{itemize}
+Given that SystemNaim was a final year project, and as such we could only put about 9 months of time into it, there are a lot of features that we would have like to have added or expanded upon. This section will go through some higher priority additions that weren't able to be made due to time constraints, but if added would make SystemNaim into a more complete and useful tool.
 
 \section{Actual 'Multi'-FPGA System}
 
-\begin{itemize}
-    \item Talk about how a system with 3+ FPGAs would look, the necessity of adding an address signal to the interconnect
-\end{itemize}
+Currently, SystemNaim only allows for two FPGAs to communicate, one parent and one child. Allowing for more FPGAs to be used in tandem would give users the ability to exploit more parallelism within their programs, however it would also come with additional difficulties. The first challenge would be adding an addressing system so that each child FPGA could be identified. It would be likely that the system would just expand, with each child FPGA holding a collection of functions that could be called upon by the parent FPGA when required by the program. The parent FPGA would need to be able to, not only choose the correct function opcode, but also the correct address so that it could call the off-chip function it required. 
 
-\section{General HLS Optimizations}
+This could be added to the remote modules, which are instantiated on the parent FPGA, with each being configured at runtime to signal which child FPGA contains their function. The interconnect would then need to signal to the channel which child FPGA to deliver this command and opcodes to. With SPI this is pretty straightforward, every child FPGA would be connected to the same MISO and MOSI channel and  each would have their own SS\_EN (Slave Select Enable) signal, which would be asserted, by the parent FPGA, when that child FPGA was receiving a transaction. In the case of multiple off-chip functions being called at the same time, there would have to be a queue and the parent FPGA would call each function sequentially. Once it had finished calling all the necessary off-chip functions, it would then need to poll each of the activated child FPGAs, until their processing was complete, to return the result.
+
+The polling, in this case, would likely be done in a round-robin fashion. With each child FPGA being sent a polling transaction, as described in IMPLEMENTATION SECTION, in order until all results had been returned. This does have the potential of causing latency spikes for the entire system. As was explored in \autoref{sec:interconnect}, missing a polling transaction can result in a large amount of additional latency, especially at low SPI Clock speeds, and adding multiple child FPGAs the parent needs to poll can only increase the worst case of a child FPGA missing a polling transaction. The solution for this would be to either know the latency of the off-chip functions, and only poll that child FPGA when it is assumed to have finished computation, or switch to a communication channel where both parties can start a transaction, such as Ethernet.
+
+\subsection{Ethernet}
+
+An Ethernet communication channel would allow child FPGAs to return data to the parent FPGA without the need for constant polling. Furthermore, only one port is required per device, with this never increasing as the system grows larger, and Ethernet can operate at a higher channel bandwidth than SPI thus further reducing the total overhead latency. The downside comes from the added complexity required in SystemNaim's custom hardware. Ethernet requires each device to be identified by a 48-bit number(MAC address) which cannot be assumed to known at runtime, therefore the parent FPGA would initially need to broadcast a request to all child FPGAs, for them to send an Ethernet packet containing their MAC address. As the parent FPGA receives these packets, they would need to store them in a lookup table to be able to communicate later on with the child FPGAs.
+
+The additional effort required to get an Ethernet communication channel working would be worth-while as the added channel bandwidth plus capability for larger systems, could allow SystemNaim to implement more latency critical programs as well expand the scope to, in the future, allowing computation on the cloud.
+
+\subsection{Changes to the HLS}
+
+When allowing for systems with 3+ FPGAs a decision has to be made as to whether the user should decide which off-chip functions go on which child FPGA. The essence of SystemNaim is to give the user as much control over the end product as possible and merely remove the tedious hardware development aspects, and thus we'd likely incorporate a method that allowed the user to choose which functions are called on which FPGAs. An example of how this is possible is shown in \autoref{fig:multi_fgpa_hls}. Inspiration was drawn from the C++ STL, with the number between the “<>” symbol representing which child FPGA the function would be placed on (0 could mean the function should be run on the parent FPGA). Off all the challenges that would likely be faced when implementing this addition, the modification to the software side is probably the least difficult in a technical sense, however, the final decision on its implementation will define how users interact with this aspect of the system, and thus it is worth conducting a design investigation if there are any plans to ever add this feature in the future.
+
+\begin{figure}[!h]
+    \centering
+    \begin{minipage}{0.5\textwidth}
+    \begin{minted}{c}
+split_fpga{
+    holda = <0>hls_test_func_a(h, n);
+    holdb = <1>hls_test_func_b(h, n);
+    holdc = <2>hls_test_func_c(h, n);
+    holdd = <3>hls_test_func_d(h, n);
+}
+    \end{minted}     
+    \end{minipage}
+    \caption{Method of allowing user to dictate which child FPGA a function is called on}
+    \label{fig:multi_fgpa_hls}
+\end{figure}
+
+\section{General HLS Optimizations \& Additions}
 
 \begin{itemize}
-    \item Adding pipelining, FIFOs, arrays and maybe even giving the user access to FPGA pins
+    \item Adding pipelining, FIFO's, arrays and maybe even giving the user access to FPGA pins
     \item Maybe even the off-chip function can start to use FPGA pins
 \end{itemize}
+
+As discussed in \autoref{sec:usability} the main downside of SystemNaim is the increase in latency of the hardware it produces, and as explained in DESIGN SECTION the decision to not spend too much time on creating optimal hardware was an intentional one. However, if SystemNaim were to be improved on in the future, optimizing the HDL generated by the HLS would make it much more appealing when compared to creating a dedicated hardware system. Below is a list of different optimizations and additions that could be made to SystemNaim's HLS aspect so that a user could create lower latency or more complex systems.
+
+\subsection{Loop Pipelining}
+
+Pipelining is an example of an optimization that would drastically reduce the latency of any loop-based function. In essence, pipelining allows for multiple iterations of a loop to be computed at the same time and is especially useful when a single iteration may take many cycles. However, in order to implement this feature correctly SystemNaim would need to be able to detect data dependencies both within an iteration and between iterations, and thus an extra step of analysis in the tool would need to be added. 
+
+To illustrate the benefit of loop pipelining, a small example will be looked at. Imagine if we had a loop with 100 iterations and each iteration took 5 cycles. To compute this loop fully would require 500 cycles, with no pipelining. To calculate the latency of this loop with pipelining we need to use the formula found in \autoref{eqn:pipelining}. Initiation interval (II), a term that we haven't used yet, is a defined as the number of cycles between the start of each iteration of the loop. For an unpipelined loop the II is equal to the latency of each iteration. If we were to have an II of 1, the best case, the example loop would only take 104 cycles to compute, thus giving a large reduction in latency. With how prevalent loops are in modern programming, adding this feature would benefit a lot of programs that may be implemented using SystemNaim, but would require an overhaul of the line-to-state model currently in use in order to allow for concurrent hardware.
+
+\begin{equation}
+    L_{tot} = L_s + I * (N - 1) \label{eqn:pipelining} 
+\end{equation}
+where:
+\begin{conditions}
+L_{tot}    &  is the total latency of the loop \\
+I    & is the Initiation Interval(Throughput) \\
+N & is the total number of iterations in the loop \\
+L_s & is the latency of a single iteration
+\end{conditions}
+
+
+\subsection{FIFO's \& arrays}
+
+In \autoref{sec:dedicated_hardware_computation}, a case when a FIFO would be optimal instead of a loop was given. FIFO's have a lot of uses in hardware design, especially when it comes to acting as the middle man between data-producing and data-consuming hardware modules. They can allow for multiple pipelined loops to act concurrently, without consuming a large amount of resources, and can act as queues for feeding data into a function. Giving access to this hardware construct to users of SystemNaim would allow them to create more complex and optimal systems. This would be the same with arrays, which allow for more complex algorithms to be implemented in SystemNaim. 
+
+Being able to store data is of vital important when creating a modern system, however, when deciding what features SystemNaim needed to implement to prove our aims we realized arrays weren't necessary. Nevertheless, in the future adding both of these constructs would vastly increase the versatility of SystemNaim, but not without their share of challenges. For arrays, multiple sources accessing the same part of memory would require multiplexers so that there wouldn't be any contention, which poses the risk of increasing the latency of each access. In terms of FIFO's, the challenge is more on the HLS side. Giving access to all aspects of the FIFO to the user would be tricky without using a class-based method inspired by C++'s OOP. This would result in potentially too large of a change in syntax, and at that point, instead of making changes to the base C language, it would be worth switching SystemNaim's base language to C++. The additional work while large, could open up more possibilities for different hardware modules to be added in the future, with member functions being the designated way of controlling and interfacing with them.
+
+Each addition would require a large amount of work but definitely has merits, and what would be achievable within SystemNaim after they had been added would be very interesting to investigate
+
+\subsection{FPGA Pins}
+
+The final addition that we believe SystemNaim would benefit from, is the ability for users to access FPGA pins from their top-level function. Pins on an FPGA are use as I/O and allow for external data streams to be processed on the FPGA. They are essential for most real world FPGA use cases, and giving users the ability to interface with external devices would make SystemNaim a more versatile tool. Users would be able to stream in data from an Ethernet or USB port and user their multi-FPGA system as an accelerator within a larger system. 
+
+Instead of giving access directly to the pins themselves, which would breach the software vs hardware programming paradigm and would defeat the purpose of an HLS tool, we could allow for FIFO's to be implemented at the top-level and then expect the user to develop some hardware to get the data from their external source into said FIFO. This would, of course, require some hardware proficiency on the user's behalf, but it would still give increase the use case of SystemNaim. It would be of interest to actually perform an investigation into the possibility of requiring no hardware proficiency from a user, but still giving them access to I/O pins and ports within the HLS tool.
+
+Another benefit of such a feature would be for child FPGAs to also be able to access their own I/O pins, and thus would be able to consume data from their own sources rather than being given it by the parent FPGA. From \autoref{sec:interconnect}, we know that this would reduce the transfer overhead if we no longer need to send data operands across the channel, therefore, further reducing the latency of the total system.
 
 \section{Inter-FPGA Data Streaming}
 

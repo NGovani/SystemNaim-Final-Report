@@ -1,0 +1,22 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}stdlib.h\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}sys/alt\PYGZus{}stdio.h\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}sys/alt\PYGZus{}alarm.h\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}sys/times.h\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}system.h\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}unistd.h\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}math.h\PYGZgt{}}
+
+\PYG{c+cp}{\PYGZsh{}define ALT\PYGZus{}CI\PYGZus{}SYSNAIM\PYGZus{}HOST\PYGZus{}0\PYGZus{}N 0x0}
+\PYG{c+cp}{\PYGZsh{}define ALT\PYGZus{}CI\PYGZus{}SYSNAIM\PYGZus{}HOST\PYGZus{}0(A,B) \PYGZus{}\PYGZus{}builtin\PYGZus{}custom\PYGZus{}inii(ALT\PYGZus{}CI\PYGZus{}SYSNAIM\PYGZus{}HOST\PYGZus{}0\PYGZus{}N,(A),(B))}
+
+\PYG{k+kt}{int} \PYG{n+nf}{main}\PYG{p}{()}
+\PYG{p}{\PYGZob{}} 
+	\PYG{k+kt}{int} \PYG{n}{out}\PYG{p}{;}
+	\PYG{n}{alt\PYGZus{}printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Starting Execution}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{);}
+	\PYG{n}{out} \PYG{o}{=} \PYG{n}{ALT\PYGZus{}CI\PYGZus{}SYSNAIM\PYGZus{}HOST\PYGZus{}0}\PYG{p}{(}\PYG{l+m+mi}{2000}\PYG{p}{,}\PYG{l+m+mi}{6050}\PYG{p}{);}
+	\PYG{n}{alt\PYGZus{}printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Output from instr: \PYGZdq{}}\PYG{p}{);}
+	\PYG{n}{alt\PYGZus{}printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}\PYGZpc{}x}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{out}\PYG{p}{);}
+	\PYG{k}{return} \PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

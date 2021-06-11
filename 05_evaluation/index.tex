@@ -8,6 +8,7 @@
 
 
 \section{Interconnect Performance}
+\label{sec:interconnect}
 
 Calling a function implemented in hardware off-chip is not latency free. There will be some overhead latency associated with packaging the data to be sent over the channel, sending the data over the channel itself, and then repeating this process in order to return the data produced by the off-chip function back to the main FPGA. Therefore, it is of importance to measure this overhead so that we can gauge the efficiency of the interconnect hardware that was designed for SystemNaim.
 
@@ -244,6 +245,7 @@ One final thing that can be discussed is the necessity for the both the MTSC and
 
 
 \section{Usability}
+\label{sec:usability}
 
 \begin{itemize}
     \item This section is a qualitative analysis on how difficult the tool is to use. 
@@ -253,10 +255,217 @@ One final thing that can be discussed is the necessity for the both the MTSC and
 
 One of the major motivations of SystemNaim is increasing the accessibility of multi-FPGA systems to people who may not be very hardware proficient. The way we have tried to tackle this goal is by creating a HLS tool which requires knowledge of C90 and basic programming constructs, therefore allowing the tool to be used by a larger group. 
 
-In order to illustrate the usability of the tool we will go through a design example and then perform a qualitative comparison to creating the same system but purely in Quartus II using only SystemVerilog and the IP catalogue.
+In order to illustrate the usability of the tool we will go through a design example, where we create a multi-FPGA system in SystemNaim,  and then perform a qualitative comparison to creating a similar system but purely in Quartus II using only SystemVerilog and the IP catalog.
 
 \subsection{Design Example: Numerical Integration}
+\label{sec:design_example}
+
 
 For this design example we have decided to show how we implemented the Composite Simpson numerical integration method that was used in the investigation in \autoref{sec:sys_perf}.
 
-The first step for any user would be to write the C code. For this example in particular this took around 15 minutes and the original 
+
+\subsubsection{Writing the program.}
+
+The first step for any user would be to write the C code. For this example in particular this took around 15 minutes and the original C code Listing \ref{lst:c_simp_st}. The user must then tell the tool which functions they wish to run in parallel, by encapsulating those functions inside either a “split” or “split\_fpga” block. An example of this is shown in Listings \ref{lst:org_to_par} and \ref{lst:par_to_off}. The case when a user decides to use “split\_fpga” is of the primary focus of this section, therefore, from now on we assume that decision has been taken. \textit{Note: The first function in a “split\_fpga” block is the one that will be run on the child FPGA.} 
+
+Currently, the tool will need to be compiled by the user, however, to make this process easier a Makefile has been provided. \autoref{fig:dir} shows the directory structure for the SystemNaim tool. Running the command “make” while in “Working Directory” will compile the tool.
+
+A test bench folder, “tb”, is also provided. However, this was mainly used for testing during development and most programs created by SystemNaim should not need to be tested. If a user does wish to test their program they will need to install Verilator, and it should be noted that programs which use the “split\_fpga” construct are unable to be tested. Instead, it is recommended to test the same program using the “split” construct instead.
+
+\begin{figure}
+\centering
+\begin{minipage}{0.47\textwidth}
+    \dirtree{%
+    .1 Working Directory.
+    .2 bin.
+    .2 include.
+    .2 out.
+    .2 hardware\_files.
+    .3 parent\_fpga.
+    .4 sysNaim\_spi\_handler.sv.
+    .4 sysNaim\_master\_mux.sv.
+    .4 sysNaim\_instr\_encoder.sv.
+    .3 child\_fpga.
+    .4 sysNaim\_spi\_slave\_handler.sv.
+    .4 sysNaim\_slave\_muxsv.sv.
+    .4 sysNaim\_instr\_decoder.sv.
+    .3 platform\_designer.
+    .4 parent\_cpu.qsys.
+    .4 child\_cpu.qsys.
+    .2 src.
+    .2 tb.
+    .2 Makefile.
+    }
+\end{minipage}
+\caption{Current base SystemNaim directory.}
+\label{fig:dir}
+\end{figure}
+
+Once the code has been properly modified, the user can then pass the program files as argument to the tool, which at this stage is an executable, and in the “out” folder they will find the output Verilog files which describe their program as a set of hardware modules.
+
+
+\subsubsection{Implementing the system in Quartus.}
+
+The next few parts require the use of Quartus Prime, Intel's Platform Designer and the NIOS II system. Pre-made files are provided for the Platform Designer, so the user isn't required to have an in depth undertstanding of that tool. However, the ability to assign pins and create a top level file in Quartus will be needed.
+
+The following instructions will also be relatively brief, as they are not intended to be used as a guide but rather to give an overview of the complexity of creating a system. Most of these steps are pretty simple, however they can appear to be complicated to a first time user of Quartus Prime since it is a very bloated and non-self-explanatory tool. 
+
+The first thing a user will need to do is create a Quartus project and select their FPGA. They will then need to create a top level clock and assign names to 4 of the GPIO pins on their FPGA. Any names will work, but we recommend the following: SPI\_MISO, SPI\_MOSI, SPI\_SS, SPI\_CLK. Add these to the top level file, preferablly a block design file (shown in \autoref{fig:qp_pins}), and they will be used later.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{05_evaluation/images/just_pins.png}
+    \caption{Quartus Prime: Top Level BDF w/ GPIO Pins and System Clock }
+    \label{fig:qp_pins}
+\end{figure}
+
+\subsubsection{Platform Designer}
+
+Now we move onto the Platform Designer. This tool allows you to quickly connect up hardware modules and will allow the user to connect their custom hardware with the NIOS II processor. This processor will act as a controller for our hardware, and will tell it when to start operating as well as provide it the initial inputs. To streamline the process of creating a new NIOS II system, two “.qsys” files have been provided. 
+
+When you open up Platform Designer, you will be prompted to select which “.qsys” file you want to open. These files save the design you have been working for, but also allow us to distribute pre-made systems. Open up the “parent\_cpu.qsys” file, and you should see something similar to \autoref{fig:pd_start}.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{05_evaluation/images/pd_no_module.png}
+    \caption{Platform Designer: System before we add custom hardware.}
+    \label{fig:pd_start}
+\end{figure}
+
+The user can then add their own custom hardware to the system. In order to do so, they need to click “New...” in the IP Catalog, which results in another window being opened: the Component Editor. In the first tab of this window, “Component Type”, a user can specify the name of their module. More importantly, they need to go to the “Files” tab to include the files generated by SystemNaim. In this tab, they need click “Add File...” under “Synthesis Files” and select all the files generated by SystemNaim in the “out” folder\footnote{It is possible to select only the files needed by the “sysNaim\_host\_top.sv” file, aswell as the files needed by its dependencies. But this might get tedious for larger systems.} and then also add the files in the “hardware\_files/parent\_fpga” folder. The user must then find the “sysNaim\_host\_top.sv”, in the file list, and set its attribute to “Top-level file”. 
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{05_evaluation/images/pd_sys_files.png}
+    \caption{Platform Designer: Generated files added to the component editor.}
+    \label{fig:pd_files}
+\end{figure}
+
+The user can then click “Analyse Synthesis Files”, if this step does not produce any errors they can move onto the “Signals \& Interfaces” tab. This tab will likely be a mess, and it is recommended to delete all pre-existing entries on the left sub-window. The user will then need to add the interfaces and signals until it looks like \autoref{fig:pd_interfaces}. The user should take extra note of the text in grey next to each signal and interface as this denotes type and is extremely important to get correct for proper synthesis.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=1\textwidth]{05_evaluation/images/pd_interfaces.png}
+    \caption{Platform Designer: Complete interface \& signal list for the custom hardware}
+    \label{fig:pd_interfaces}
+\end{figure}
+
+Once all the signal are added, the user will need to click on the “avalon\_master” interface and set the “Address Units” to “WORDS” and the “Write wait” to “1”, shown in \autoref{fig:pd_avalon}. They will also need to select the “clock\_out” interface and set the “Clock rate” to “50000000” and enable “Clock rate known”, refer to \autoref{fig:pd_clock}.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=1\textwidth]{05_evaluation/images/pd_avalon_config.png}
+    \caption{Platform Designer: Avalon config}
+    \label{fig:pd_avalon}
+\end{figure}
+
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{05_evaluation/images/pd_clock.png}
+    \caption{Platform Designer: Clock output config}
+    \label{fig:pd_clock}
+\end{figure}
+
+A user may then click “Finish...” to save their design and exit out of the “Component Editor”. Now that their module has been added to the catalog, a user can search for their custom hardware and add it to their system. Once their module has been added, they will need to connect it to the other modules in the system. The important modules are “cpu” and “spi\_0”. The first represents the NIOS II processor, and we connect it to our module through the Custom Instruction” interface. The “spi\_0” is an IP core provided by intel to interface with an SPI channel. This module will be driving the GPIO pins, while the user's custom hardware will be controlling it and providing it data.
+
+To connect the custom hardware module, click on the dots shown in \autoref{fig:pd_connections}. They should be empty white circles initially, and then should fill when enabled. The user should then save the system and click “Generate HDL”. In the prompt that shows up, most default settings should be kept however the user should make sure “Create block symbol file (.bsf)” is enabled. “Generate” can then be clicked and in the “Platform Designer” window the user can press “Finish” to exit the tool.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{05_evaluation/images/pd_connections.png}
+    \caption{Platform Designer: Connections to the custom hardware}
+    \label{fig:pd_connections}
+\end{figure}
+
+\subsubsection{Back to Quartus}
+
+Once back in Quartus, the user will need to add the “parent\_cpu.qsys” file to the project files. They can then add their system, which will be named “parent\_cpu”, to the top-level file containing the pins. Wire up the pins to their appropriate ports on the cpu module, as shown in \autoref{fig:qp_connected}. Then add a VCC block and connect it to the “reset\_n” port. The user may then synthesize the top-level file and load it onto the FPGA.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{05_evaluation/images/qs_cpu_connected.png}
+    \caption{Quartus Prime: NIOS System connected to pins in top-level file.}
+    \label{fig:qp_connected}
+\end{figure}
+
+\subsubsection{NIOS II Eclipse}
+
+The final tool the user will need to use is the NIOS II Software Build Tools for Eclipse. It is recommended that the user read the following: pages 4-7 of “My First NIOS II Software” \cite{nios-ii-first-prog} and chapter 3 of “NIOS II Custom Instruction User Guide” \cite{nios-ii-inst-guide}.
+
+Once the user understands how to create a NIOS II project and call custom instructions they can run their own custom hardware on their FPGA.
+
+Example code files for both the child and parent FPGA can be found in Listings \ref{lst:parent_code} and \ref{lst:parent_code} respectively.
+
+\subsubsection{Child FPGA Setup}
+
+The sections starting from opening up Quartus will need to be repeated in order to set up the user's child FPGA. When performing these steps again most are the same, except when in the “Platform Designer”, the user should open up the “child\_cpu.qsys” file instead. They must also set the “sysNaim\_remote\_top.sv” as the top-level file, and include the hardware files in the “child\_fpga” folder instead of the “parent\_fpga” folder. Calling the function in NIOS II for Eclipse will be the same except that the function name will be different.
+
+\subsubsection{Running the System}
+
+Before the bitstreams are overlayed onto the FPGAs, the user should first connect the GPIO pins they assigned names to. So the SPI\_MISO pin on the parent FPGA should be connected to the SPI\_MISO pin on the child FPGA, and so on for all the other SPI pins. One this is done the FPGAs can be programmed, ready for the systems to be run.
+
+To run the system, the child FPGA starts first so that it is ready to recieve a transaction from the parent FPGA. Once the child FPGA has been started, the parent FPGA can be run. When the NIOS II terminal displays the result, the system has completed operation.
+
+\subsection{Creating a Multi-FPGA System from Scratch}
+\label{sec:scratch}
+
+Going through a step-by-step design example for implementing a multi-FPGA system would likely take an obscene amount of pages and would do very little to showcase the main differences in complexity between such a system and one implemented using SystemNaim. Instead, the following sections will provide an overview of the main challenges and considerations that one would have to think about if they were to create a system just using Quartus Prime and SystemVerilog.
+
+Afterwards, a comparison will be made of performing the same task using SystemNaim. Both the benefits and disadvantages for both solutions will be given to provide a fair and a balanced evaluation.
+
+\subsection{Computing the Result.}
+\label{sec:dedicated_hardware_computation}
+
+The first task a user would have to complete is desiging the system which computes their desired function. Unlike programming in software, designing in hardware requires a full understanding of the system before any HDL is written.
+
+As an example, let us consider a module which computes the value for a function, $f(x)$. A user must consider design decisions such as, is this module combinational or sequential? Is a ready signal neccesary to tell a connected module whether this module is ready to take in data? Will I assume all modules connected to this one know the latency of this module, or will there be a done signal?
+
+Before the computation within the module is reasoned about, a user must decide how this module will be used by the hardware blocks connected to it. The interfaces of a module are of key importance since they determine how a module accepts data and how it should output data once it has finished computation.
+
+Even when we can start writing the hardware logic, the paradigm shift from software programming becomes larger. For loops don't neccesarily exist in Verilog the same way as normal programming languages. To implement something similar a state machine, whose computation resembles a for loop written in assembly, must be designed. However, this may not be the most optimal solution, and instead, having a FIFO as an interface input and grabbing data from it when it is available would be a better way of iterating over data. The latter solution is something very few people, outside those with experience in concurrent programming and queues, would think to implement, but it would result in a more streamlined system with less overhead states.
+
+In comparison to software programming, hardware design requires a user to put much more thought into how the modules connect rather than just what their computations consists. A single mistake in deciding which cycle to pass data from one module to another can cause a cascade of failures, resulting in the entire system being rendered useless. Even debugging is more difficult, you can't merely call your main function with some inputs and print to console in places you think the program is broken. Instead, you have to simulate your entire design, including manually creating valid transactions for you top level module, and then find the issue by following incorrect wire or register values to their source.
+
+\subsubsection{Comparison to SystemNaim}
+
+When creating a system in SystemNaim, it's exactly the same as developing software. You can write a program in C and trust that the tool will create the correct hardware which computes the same result. The main draw of HLS is that a user no longer needs to worry about timing violations or what number states are neccesary for this module, instead they can focus on the actual computation which the system needs to implement. Creating dedicated hardware to compute the Composite Simpson numerical integration would likely take a few hours, but in SystemNaim it only takes 15 minutes. This speedup in development time is crucial for implementing larger systems in hardare within a reasonable time frame.
+
+However, the increase in user productivity does come at cost. The output Verilog will likely have much worse latency than hardware designed for a specific system. If an individual were to create dedicated hardware to compute the Composite Simpson numerical integration, the latency would be much lower than the system created in SystemNaim. Therefore, a user must decide if the increase in latency of the resulting hardware is worth the reduction in development times. For larger systems this potentially may be the case as it would be otherwise unfeasible to create all the hardware manually.
+
+\subsection{Converting to Multi-FPGA}
+
+The main purpose of SystemNaim is to streamline the process of creating a multi-FPGA system. But, what issues and challenges would one face if they decided to create a multi-FPGA system using only Quartus and Verilog. Firstly they would have to decide how the two FPGAs would communicate with each other. Usually this is done over a communication channel such as SPI which then begs the question: whether they would want to use Intel's SPI core, or any other communication IP core, to control their channel or create their own hardware. The latter is ill-advides unless they wish to create their own protocol, but the former usually requires an understanding of an Intel designed interface.
+
+In the case of the Intel SPI core, there is an Avalon-MM interface, which requires the user to control signals such as: address, read data, write data, read/write enable, and chipselect. All signals have their own purpose and misunderstanding any of their uses leads to an inabilty to interact with the core. Therefore, in order to use one of these cores a user has to design a hardware module which correctly interfaces with the core so that they are able to send and recieve data over the channel. Sometimes, the provided core on the child FPGA may have a slightly different implementation, which requires an additional hardware module to be created in order to interface with it correctly.
+
+But once the required interfacing hardware is created, the user must then decide what data they wish to send over. Sending more data over the channel allows for more processing to occur on the child FPGA, however this incurs a latency cost as explored in \autoref{sec:interconnect} and thus sending too much data will slow down the system. On the other hand, sending too little data will reduce the amount of processing that can be done on the child FPGA as it won't have anything to actually process. Potentially, the designer could only use the communication channel to send commands to the off-chip and not any actual data. This would mean that all data would need to created on the child FPGA, or known by it at compile time, thus drastically reducing its versatility at run-time. Using the Composite Simpson example once again, the designer could decider that the values of $a$, $b$, $n$, and $h$ are never going to change and thus no data needs to be sent to the child FPGA when it's computing its sum. However, this would mean that if the user wanted to integrate over a different part of the function they would need to recompile the entire system. 
+
+The resulting decision ends up being a balance between being able to compute as much as possible on the child FPGA and not incurring too much of latency cost from using the communication channel, but a user can tailor it to their specific needs.
+
+The next issue the user faces is connecting this communication channel to their main system. Assuming they have decided what data is being sent over and what processing is occuring on the child-FPGA they will then need to create a new data path to send the correct data to the communication channel. They will then need to decide if they want to wait for the processing off-chip to be finished before they continue any other operation or if they would like to perform some computation on the parent FPGA in parallel. The latter is strongly advised, but requires additional hardware to wait for both data paths to finish processing.
+
+If the system has already been designed with parallelism in mind, and the user wished to offload one of the parallel data paths to the child-FPGA, then the new data path will likely just be a modification of a pre-existing one. If the system had no parallelism beforehand, then creating a new data path may require an entire overhaul.
+
+Overall, creating a multi-FPGA system is not just about setting up a communication channel but rather considering which parts of the system would benefit from being processed off chip, and what data those parts require. But it is still a tedious and long process to create a functioning communication channel.
+
+\subsubsection{Comparison to SystemNaim}
+
+In SystemNaim, we use function calls as a method of allowing the user to decide what processing occurs off and on-chip. This makes it much easier for new users to split their program across multiple FPGAs. They don't have to worry about interfacing correctly with the SPI core, or creating a new data path to accomodate for the off-chip processing. Instead, they can treat it as a normal function call and nothing more. Ofcourse, following from \autoref{sec:sys_perf}, there are recommendations that the user should follow when creating their program, but they are free to explore designs as they wish, and they can experitment with choosing which parts of their program to process off-chip without having to go through the hassle of rehauling their entire system, if they had chosen to do it manually.
+
+It goes without saying, though I will say it, that there aren't only advantages to using SystemNaim. The user is limited to only being able to design functions with two inputs, which does limit the potential use cases. If they had designed their own hardware system, they would be able to transmit as much data as possible. SystemNaim also forces each transaction across the channel to be 32 bits long, in order to ensure a full integer can be sent across. However, some systems may not need to full 32 bits which results in unneeded additional latency.
+
+Once again, the decision to use SystemNaim or not is a balance between latency and development time. A manually designed system, focusing on one application, will be faster and will use less resources. But, it may take much longer to create. When creating SystemNaim it took us a week to create the hardware to control communication channel and even longer to debug it. Therefore, I would posit, that even though it may result in latency increases, the time saved from using SystemNaim, and any HLS tool dervied from it, will allow for much larger systems to be created and for more experimentation on multi-FPGA platforms to take place.
+
+\subsection{Conclusion}
+
+I hope it is clear from the sections above that while SystemName does create less optimized systems, than dedicated hardware, it does streamline the development process and reduce the time taken to get a system running. One last note that is important to this analysis, regards to the steps shown in \autoref{sec:design_example}. Many of the steps shown when setting up a SystemNaim system are not related to the developemnt of the program, but rather they illustrate the overhead that comes with getting it to run. 
+
+Tasks such as; finding a way to control the system, connecting the program hardware to the SPI core, assinging pins to use as the communication channels, would still be present if a user decided to implement their own system from scratch. Potentially the steps regarding NIOS II could be avoided, but then additional effort would be needed to find a way of controlling and testing the system. In addition, pre-made files which streamline these taks would also not be available and the designer would have to gain a deeper understanding of all the aformentioned tools to complete their system. Therfore, SystemNaim can be said to not only streamline the developemnt process but also the process of getting the system actually running on an FPGA.
+
+
+
+
+
+
+
