@@ -1,0 +1,11 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+nl}{funcCall1:} \PYG{k}{begin}
+    \PYG{n}{a0\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{32}\PYG{l+m+mi}{\PYGZsq{}d3}\PYG{p}{;}
+    \PYG{n}{b0\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{32}\PYG{l+m+mi}{\PYGZsq{}d5}\PYG{p}{;}
+    \PYG{n}{func\PYGZus{}start0\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{1}\PYG{l+m+mi}{\PYGZsq{}d1}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{funcWait2:} \PYG{k}{begin}
+    \PYG{n}{func\PYGZus{}start0\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{1}\PYG{l+m+mi}{\PYGZsq{}d0}\PYG{p}{;}
+    \PYG{n}{func\PYGZus{}outData1\PYGZus{}next} \PYG{o}{=} \PYG{n}{func\PYGZus{}done0} \PYG{o}{?} \PYG{n}{func\PYGZus{}out0} \PYG{o}{:} \PYG{n}{func\PYGZus{}outData1}\PYG{p}{;}
+\PYG{k}{end}
+\end{Verbatim}

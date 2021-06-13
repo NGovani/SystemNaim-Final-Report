@@ -1,0 +1,25 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kt}{wire} \PYG{n}{func\PYGZus{}a\PYGZus{}done0}\PYG{p}{;}
+\PYG{k+kt}{wire} \PYG{p}{[}\PYG{l+m+mh}{31}\PYG{o}{:}\PYG{l+m+mh}{0}\PYG{p}{]} \PYG{n}{func\PYGZus{}a\PYGZus{}out0}\PYG{p}{;}
+\PYG{k+kt}{wire} \PYG{n}{func\PYGZus{}a\PYGZus{}start\PYGZus{}out0}\PYG{p}{;}
+\PYG{k+kt}{wire} \PYG{p}{[}\PYG{l+m+mh}{31}\PYG{o}{:}\PYG{l+m+mh}{0}\PYG{p}{]} \PYG{n}{func\PYGZus{}a\PYGZus{}dataa0}\PYG{p}{;}
+\PYG{k+kt}{wire} \PYG{p}{[}\PYG{l+m+mh}{31}\PYG{o}{:}\PYG{l+m+mh}{0}\PYG{p}{]} \PYG{n}{func\PYGZus{}a\PYGZus{}datab0}\PYG{p}{;}
+\PYG{k+kt}{wire} \PYG{p}{[}\PYG{l+m+mh}{31}\PYG{o}{:}\PYG{l+m+mh}{0}\PYG{p}{]} \PYG{n}{func\PYGZus{}a\PYGZus{}return0}\PYG{p}{;}
+\PYG{k+kt}{wire} \PYG{n}{func\PYGZus{}a\PYGZus{}returnValid0}\PYG{p}{;}
+
+\PYG{n}{func\PYGZus{}a\PYGZus{}remote} \PYG{n}{func\PYGZus{}a0}\PYG{p}{(}
+    \PYG{p}{.}\PYG{n}{clk}\PYG{p}{(}\PYG{n}{clk}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{clk\PYGZus{}en}\PYG{p}{(}\PYG{n}{clk\PYGZus{}en}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{reset}\PYG{p}{(}\PYG{n}{reset}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{a}\PYG{p}{(}\PYG{n}{a0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{b}\PYG{p}{(}\PYG{n}{b0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{start}\PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}start0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{done}\PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}done0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{d\PYGZus{}out}\PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}out0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{select\PYGZus{}out}\PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}start\PYGZus{}out0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{dataa\PYGZus{}out}\PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}dataa0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{datab\PYGZus{}out}\PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}datab0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{data\PYGZus{}from\PYGZus{}remote}\PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}return0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{data\PYGZus{}from\PYGZus{}remote\PYGZus{}valid} \PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}returnValid0}\PYG{p}{)}
+\PYG{p}{);}
+\end{Verbatim}

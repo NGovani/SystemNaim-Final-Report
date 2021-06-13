@@ -4,17 +4,17 @@
     \begin{minipage}{0.45\textwidth}
     \centering
     \begin{minted}{c}
-holda = hls_test_func_a(h, n/2);
-holdb = hls_test_func_b(h, (n/2 - 1));
+holda = func_a(h, n/2);
+holdb = func_b(h, (n/2-1));
     \end{minted}
     \end{minipage}
     \begin{minipage}{0.45\textwidth}
     \centering
     \begin{minted}{c}
-    split{
-        holda = hls_test_func_a(h, n/2);
-        holdb = hls_test_func_b(h, (n/2 - 1));
-    }
+split{
+    holda = func_a(h, n/2);
+    holdb = func_b(h, (n/2-1));
+}
     \end{minted}
     \end{minipage}
     \captionof{listing}{How to call functions in parallel in SystemNaim. \textit{Left is original, right is modified code}}
@@ -22,22 +22,22 @@ holdb = hls_test_func_b(h, (n/2 - 1));
 \end{figure}
 
 \begin{figure}[!h]
-    \begin{minipage}{0.47\textwidth}
+    \begin{minipage}{0.45\textwidth}
     \centering
     \begin{minted}{c}
 split{
-    holda = hls_test_func_a(h, n/2);
-    holdb = hls_test_func_b(h, (n/2 - 1));
+    holda = func_a(h, n/2);
+    holdb = func_b(h, (n/2-1));
 }
     \end{minted}
     \end{minipage}
     \begin{minipage}{0.45\textwidth}
     \centering
     \begin{minted}{c}
-    split_fpga{
-        holda = hls_test_func_a(h, n/2);
-        holdb = hls_test_func_b(h, (n/2 - 1));
-    }
+split_fpga{
+    holda = func_a(h, n/2);
+    holdb = func_b(h, (n/ -1));
+}
     \end{minted}
     \end{minipage}
     \captionof{listing}{How to call functions off-chip and in parallel in SystemNaim. \textit{On the left functions are run parallel on the same FPGA, on the right the first function is called off-chip}}

@@ -1,0 +1,11 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+nl}{addChildLeft1:} \PYG{k}{begin}
+    \PYG{n}{addLeft1\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{32}\PYG{l+m+mi}{\PYGZsq{}d4} \PYG{o}{*} \PYG{n}{a}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{divChildLeft2:} \PYG{k}{begin}
+    \PYG{n}{divLeft0\PYGZus{}next} \PYG{o}{=} \PYG{n}{addLeft1} \PYG{o}{+} \PYG{n}{b}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{assignment3:} \PYG{k}{begin}
+    \PYG{n}{x\PYGZus{}next} \PYG{o}{=} \PYG{n}{divLeft0} \PYG{o}{/} \PYG{l+m+mh}{32}\PYG{l+m+mi}{\PYGZsq{}d2}\PYG{p}{;}
+\PYG{k}{end}
+\end{Verbatim}

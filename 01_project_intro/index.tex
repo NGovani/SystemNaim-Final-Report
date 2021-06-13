@@ -3,7 +3,7 @@
 
 \section{Aims}
 
-SystemNaim is a HLS tool which allows users to create multi-FPGA systems. We would like to prove, through SystemNaim, that it is possible to give a larger group of people the ability to utilize the benefits of multi-FPGA system without requiring them to spend months learning to develop hardware. In the future, users, such as Researches and Businesses, should be able to create large systems with multiple FPGAs working in tandem without the need for exorbitant developement times, and we hope that the investigations and conclusions laid out in this paper act as a stepping stone for future research in this field.
+SystemNaim is a HLS tool which allows users to create multi-FPGA systems. We would like to prove, through SystemNaim, that it is possible to give a larger group of people the ability to utilize the benefits of multi-FPGA system without requiring them to spend months learning to develop hardware. In the future, users, such as Researches and Businesses, should be able to create large systems with multiple FPGAs working in tandem without the need for exorbitant development times, and we hope that the investigations and conclusions laid out in this paper act as a stepping stone for future research in this field.
 
 \section{Motivation}
 
@@ -49,7 +49,7 @@ Utilising a multi-FPGA system to overcome the limitations of a single FPGA has b
 
 \section{Further Contributions}
 
-We hope that this paper can convince readers that giving more people the ability to implement multi-FPGA systems is not only a benefical endeavour but also a realistic one. However, we don't think that will be the only contribution this project makes. Beyond laying a platform for future investigations, we'd like to present two additional results of this project. The first is the HLS tool developed, which forms the basis of SystemNaim. The software created for the purpose of converting C code to Verilog is straightforward and barebones, as will be explored in later sections, but this comes with the benefit of it also being easy to modify and develop further. We hope it can be used as a platform, to either teach about methods of transpiling software to HDL or as basis for further research in the HLS sphere.
+We hope that this paper can convince readers that giving more people the ability to implement multi-FPGA systems is not only a beneficial endeavour but also a realistic one. However, we don't think that will be the only contribution this project makes. Beyond laying a platform for future investigations, we'd like to present two additional results of this project. The first is the HLS tool developed, which forms the basis of SystemNaim. The software created for the purpose of converting C code to Verilog is straightforward and bare bones, as will be explored in later sections, but this comes with the benefit of it also being easy to modify and develop further. We hope it can be used as a platform, to either teach about methods of transpiling software to HDL or as basis for further research in the HLS sphere.
 
 The second additional contribution is the interconnect designed to connect the HLS to the communication channel. The implementation for it will be discussed in another section, however, it should be noted that it has been designed with modularity in mind to allow it to be used across different systems. Either with different communication channels or with different HLS tools, or even within a dedicated hardware system as an IP core, it will hopefully ease the process of creating a multi-FPGA system. 
 

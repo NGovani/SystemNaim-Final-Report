@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+nl}{assignment1:} \PYG{k}{begin}
+    \PYG{n}{x\PYGZus{}next} \PYG{o}{=} \PYG{n}{a} \PYG{o}{+} \PYG{n}{b}\PYG{p}{;}
+\PYG{k}{end}
+\end{Verbatim}

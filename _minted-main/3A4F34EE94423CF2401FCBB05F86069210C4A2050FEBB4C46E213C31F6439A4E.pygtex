@@ -1,0 +1,18 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+nl}{assignment1:} \PYG{k}{begin}
+    \PYG{n}{i\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{32}\PYG{l+m+mi}{\PYGZsq{}d0}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{forCondExpr2:} \PYG{k}{begin}
+    \PYG{n}{forCond1\PYGZus{}next} \PYG{o}{=} \PYG{n}{i} \PYG{o}{\PYGZlt{}} \PYG{l+m+mh}{32}\PYG{l+m+mi}{\PYGZsq{}d20}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{forBranch3:} \PYG{k}{begin}
+\PYG{p}{;}
+\PYG{k}{end}
+\PYG{c+c1}{// Start of Verilog code inside loop}
+\PYG{c+c1}{// ...}
+\PYG{c+c1}{// ...}
+\PYG{c+c1}{// End of Verilog code inside loop}
+\PYG{n+nl}{assignment4:} \PYG{k}{begin}
+    \PYG{n}{i\PYGZus{}next} \PYG{o}{=} \PYG{n}{i} \PYG{o}{+} \PYG{l+m+mh}{32}\PYG{l+m+mi}{\PYGZsq{}d1}\PYG{p}{;}
+\PYG{k}{end}
+\end{Verbatim}

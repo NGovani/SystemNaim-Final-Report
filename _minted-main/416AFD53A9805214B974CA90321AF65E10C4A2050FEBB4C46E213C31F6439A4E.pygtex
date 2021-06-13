@@ -1,0 +1,14 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+nl}{splitCall2:} \PYG{k}{begin}
+    \PYG{n}{state} \PYG{o}{\PYGZlt{}=} \PYG{n}{splitWait3}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{splitWait3:} \PYG{k}{begin}
+    \PYG{n}{state} \PYG{o}{\PYGZlt{}=} \PYG{n}{func\PYGZus{}a\PYGZus{}doneReg2} \PYG{o}{\PYGZam{}\PYGZam{}} \PYG{n}{func\PYGZus{}b\PYGZus{}doneReg7} \PYG{o}{?} \PYG{n}{funcReturn4} \PYG{o}{:} \PYG{n}{state}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{funcReturn4:} \PYG{k}{begin}
+    \PYG{n}{state} \PYG{o}{\PYGZlt{}=} \PYG{n}{funcReturn5}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{funcReturn5:} \PYG{k}{begin}
+    \PYG{n}{state} \PYG{o}{\PYGZlt{}=} \PYG{n}{return6}\PYG{p}{;}
+\PYG{k}{end}
+\end{Verbatim}

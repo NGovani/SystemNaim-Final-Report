@@ -1,5 +1,15 @@
 \chapter{SystemNaim: Current Implementation}
 
+\begin{itemize}
+    \item Go through the things we haven't yet introduced about the tool, all of the design decisions
+    \item The fact that we do one parent multiple children system
+    \item child FPGAs are used as storage for off chip functions which the parent can then call on
+\end{itemize}
+
+\section{The System as a Whole}
+
+In its current implementation SystemNaim is able to generate a 2-FPGA system, with one parent and one child FPGA. The parent FPGA contains the main parts of the program, and during operation it can make remote calls, similar to an RPC system, to the child FPGA. When the child FPGA receives a remote call it will begin execution and once complete it will pass the result back to the parent FPGA. 
+
 \section{HLS}
 
 \begin{itemize}
@@ -13,6 +23,589 @@
     \item This method means that the main system does not need to distinguish between submodules being processed on-chip or off-chip making the resultant hardware more straightforward.
     \item Also talk about how the hardware for the second FPGA is generated.
 \end{itemize}
+
+\subsection{Variables}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.15\textwidth}
+    \centering
+    \begin{minted}{c}
+int x;
+    \end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.25\textwidth}
+    \begin{minted}{Verilog}
+reg [31:0] x;
+    \end{minted}
+\end{subfigure}
+\caption{Variable Update: Variable converted by SystemNaim.}
+\label{sn:var_update}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.15\textwidth}
+    \centering
+    \begin{minted}{c}
+int x;
+    \end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.45\textwidth}
+    \begin{minted}[breaklines]{Verilog}
+always_ff @ (posedge clk or posedge reset) begin
+if(reset) begin
+    x <= 32'd0;
+end
+else if (!clk_en) begin
+    x <= 32'd0;
+end
+else begin
+    x <= x_next;
+    // State logic below
+end
+    \end{minted}
+\end{subfigure}
+\caption{Variable Instantiation: Variable converted by SystemNaim.}
+\label{sn:var}
+\end{figure}
+
+\subsection{Expressions}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.2\textwidth}
+    \centering
+    \begin{minted}{c}
+x = a + b;
+    \end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.3\textwidth}
+    \begin{minted}{Verilog}
+assignment1: begin
+    x_next = a + b;
+end
+    \end{minted}
+\end{subfigure}
+\caption{Assignment expression converted by SystemNaim.}
+\label{sn:expr}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.35\textwidth}
+    \centering
+    \begin{minted}{c}
+x = ((4 * a) + b) / 2;
+    \end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.47\textwidth}
+    \begin{minted}{Verilog}
+addChildLeft1: begin
+    addLeft1_next = 32'd4 * a;
+end
+divChildLeft2: begin
+    divLeft0_next = addLeft1 + b;
+end
+assignment3: begin
+    x_next = divLeft0 / 32'd2;
+end
+    \end{minted}
+\end{subfigure}
+\caption{Assignment expression, with brackets, converted by SystemNaim.}
+\label{sn:expr_brackets}
+\end{figure}
+
+
+\subsection{For Loops}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.42\textwidth}
+    \centering
+    \begin{minted}{c}
+for(i = 0; i < 20; i = i + 1){
+    // Some code
+}
+    \end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.5\textwidth}
+    \begin{minted}{Verilog}
+assignment1: begin
+    i_next = 32'd0;
+end
+forCondExpr2: begin
+    forCond1_next = i < 32'd20;
+end
+forBranch3: begin
+;
+end
+// Start of Verilog code inside loop
+// ...
+// ...
+// End of Verilog code inside loop
+assignment4: begin
+    i_next = i + 32'd1;
+end
+    \end{minted}
+\end{subfigure}
+\caption{Combinational Logic: For Loop converted by SystemNaim.}
+\label{sn:for}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.42\textwidth}
+    \centering
+    \begin{minted}{c}
+for(i = 0; i < 20; i = i + 1){
+    // Some code
+}
+    \end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.48\textwidth}
+    \begin{minted}[breaklines]{Verilog}
+assignment1: begin
+    state <= forCondExpr2;
+end
+forCondExpr2: begin
+    state <= forBranch3;
+end
+forBranch3: begin
+    state <= forCond1 ? /*Stay*/ : /*Exit*/;
+end
+// Start of code inside loop
+// ...
+// ...
+// End of code inside loop
+assignment4: begin
+    state <= forCondExpr2;
+end
+\end{minted}
+\end{subfigure}
+\caption{State Logic: For Loop converted by SystemNaim.}
+\label{sn:for_state}
+\end{figure}
+
+\subsection{If Statement}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.22\textwidth}
+    \centering
+    \begin{minted}{c}
+if (x > 4){
+    y  = 2;
+} else {
+    y = 3;
+}
+\end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.45\textwidth}
+    \begin{minted}{Verilog}
+ifCondExpr1: begin
+    cond0_next = x > 32'd4;
+end
+ifBranch3: begin
+;
+end
+    \end{minted}
+\end{subfigure}
+\caption{Combinational Logic: If Statement converted by SystemNaim.}
+\label{sn:if}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.22\textwidth}
+    \centering
+    \begin{minted}{c}
+if (x > 4){
+    y  = 2;
+} else {
+    y = 3;
+}
+\end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.6\textwidth}
+    \begin{minted}{Verilog}
+ifCondExpr1: begin
+    state <= ifBranch3;
+end
+ifBranch3: begin
+    state <= cond0 ? /*True*/ : /*False*/;
+end
+    \end{minted}
+\end{subfigure}
+\caption{State Logic: If Statement converted by SystemNaim.}
+\label{sn:if_state}
+\end{figure}
+
+\subsection{Function Calls}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.25\textwidth}
+    \centering
+    \begin{minted}{c}
+x = func(3, 5);
+\end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.4\textwidth}
+    \begin{minted}{Verilog}
+wire func_done0;
+wire [31:0] func_out0;
+func func0(
+    .clk(clk),
+    .clk_en(clk_en),
+    .reset(reset),
+    .a(a0),
+    .b(b0),
+    .start(func_start0),
+    .done(func_done0),
+    .d_out(func_out0)
+);
+    \end{minted}
+\end{subfigure}
+\caption{Module Instantiation: Function Call converted by SystemNaim}
+\label{sn:func_call_mdl}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.25\textwidth}
+    \centering
+    \begin{minted}{c}
+x = func(3, 5);
+\end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.55\textwidth}
+    \begin{minted}[breaklines]{Verilog}
+funcCall1: begin
+    a0_next = 32'd3;
+    b0_next = 32'd5;
+    func_start0_next = 1'd1;
+end
+funcWait2: begin
+    func_start0_next = 1'd0;
+    func_outData1_next = func_done0 ? func_out0 : func_outData1;
+end
+    \end{minted}
+\end{subfigure}
+\caption{Combinational Logic: Function Call converted by SystemNaim}
+\label{sn:func_call_comb}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.25\textwidth}
+    \centering
+    \begin{minted}{c}
+x = func(3, 5);
+\end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.55\textwidth}
+    \begin{minted}[breaklines]{Verilog}
+funcCall1: begin
+    state <= funcWait2;
+end
+funcWait2: begin
+    state <= func_done0 ? assignment3 : state;
+end
+    \end{minted}
+\end{subfigure}
+\caption{State Logic: Function Call converted by SystemNaim}
+\label{sn:func_call_state}
+\end{figure}
+
+\subsection{Multi-Function Calls}
+
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.32\textwidth}
+    \centering
+    \begin{minted}{c}
+split{
+    a = func_a(x, 5);
+    b = func_b(y, 5);
+}
+\end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.45\textwidth}
+    \begin{minted}[breaklines]{Verilog}
+wire func_a_done0;
+wire [31:0] func_a_out0;
+func_a func_a0(
+    .clk(clk),
+    .clk_en(clk_en),
+    .reset(reset),
+    .a(a0),
+    .b(b0),
+    .start(func_a_start0),
+    .done(func_a_done0),
+    .d_out(func_a_out0)
+);
+
+wire func_b_done5;
+wire [31:0] func_b_out5;
+func_b func_b5(
+    .clk(clk),
+    .clk_en(clk_en),
+    .reset(reset),
+    .a(a5),
+    .b(b5),
+    .start(func_b_start5),
+    .done(func_b_done5),
+    .d_out(func_b_out5)
+);
+    \end{minted}
+\end{subfigure}
+\caption{Module Instantiation: Multi-Function Call converted by SystemNaim}
+\label{sn:multi_func_call_mdl}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.32\textwidth}
+    \centering
+    \begin{minted}{c}
+split{
+    a = func_a(x, 5);
+    b = func_b(y, 5);
+}
+\end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.58\textwidth}
+    \begin{minted}[breaklines]{Verilog}
+splitCall2: begin
+    a0_next = x;
+    b0_next = 32'd5;
+    func_a_start0_next = 1'd1;
+    func_a_doneReg2_next = 1'd0;
+    a5_next = y;
+    b5_next = 32'd5;
+    func_b_start5_next = 1'd1;
+    func_b_doneReg7_next = 1'd0;
+end
+splitWait3: begin
+    func_a_start0_next = 1'd0;
+    func_a_outData1_next = func_a_done0 ? func_a_out0 : func_a_outData1;
+    func_a_doneReg2_next = func_a_done0 ? 1'b1 : func_a_doneReg2;
+    func_b_start5_next = 1'd0;
+    func_b_outData6_next = func_b_done5 ? func_b_out5 : func_b_outData6;
+    func_b_doneReg7_next = func_b_done5 ? 1'b1 : func_b_doneReg7;
+end
+funcReturn4: begin
+    a_next = func_a_outData1;
+end
+funcReturn5: begin
+    b_next = func_b_outData6;
+end
+    \end{minted}
+\end{subfigure}
+\caption{Combinational Logic: Multi-Function Call converted by SystemNaim}
+\label{sn:multi_func_call_comb}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.32\textwidth}
+    \centering
+    \begin{minted}{c}
+split{
+    a = func_a(h, n);
+    b = func_b(h, n);
+}
+\end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.58\textwidth}
+    \begin{minted}[breaklines]{Verilog}
+splitCall2: begin
+    state <= splitWait3;
+end
+splitWait3: begin
+    state <= func_a_doneReg2 && func_b_doneReg7 ? funcReturn4 : state;
+end
+funcReturn4: begin
+    state <= funcReturn5;
+end
+funcReturn5: begin
+    state <= return6;
+end
+    \end{minted}
+\end{subfigure}
+\caption{State Logic: Multi-Function Call converted by SystemNaim}
+\label{sn:multi_func_call_state}
+\end{figure}
+
+\subsection{Remote Function Call}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.32\textwidth}
+    \centering
+    \begin{minted}{c}
+split_fpga{
+    a = func_a(3, 5);
+    b = func_b(3, 5);
+}
+\end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.58\textwidth}
+    \begin{minted}[breaklines]{Verilog}
+wire func_a_done0;
+wire [31:0] func_a_out0;
+wire func_a_start_out0;
+wire [31:0] func_a_dataa0;
+wire [31:0] func_a_datab0;
+wire [31:0] func_a_return0;
+wire func_a_returnValid0;
+
+func_a_remote func_a0(
+    .clk(clk),
+    .clk_en(clk_en),
+    .reset(reset),
+    .a(a0),
+    .b(b0),
+    .start(func_a_start0),
+    .done(func_a_done0),
+    .d_out(func_a_out0),
+    .select_out(func_a_start_out0),
+    .dataa_out(func_a_dataa0),
+    .datab_out(func_a_datab0),
+    .data_from_remote(func_a_return0),
+    .data_from_remote_valid (func_a_returnValid0)
+);
+    \end{minted}
+\end{subfigure}
+\caption{Module Instantiation: Remote Function Call converted by SystemNaim}
+\label{sn:rmt_func_call_mdl}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.32\textwidth}
+    \centering
+    \begin{minted}{c}
+split_fpga{
+    a = func_a(3, 5);
+    b = func_b(3, 5);
+}
+\end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.58\textwidth}
+    \begin{minted}[breaklines]{Verilog}
+sysNaim_master_mux mux0(
+    .clk(clk),
+    .start_out(start_out),
+    .opcode_out(opcode_out),
+    .dataa_out(dataa_out),
+    .datab_out(datab_out),
+    .data_from_remote(data_from_remote),
+    .data_from_remote_valid (data_from_remote_valid),
+
+    .select_in1(func_a_start_out0),
+    .dataa_in1(func_a_dataa0),
+    .datab_in1(func_a_datab0),
+    .data_from_remote_in1 (func_a_return0),
+    .data_from_remote_valid_in1 (func_a_returnValid0),
+
+    .select_in2(1'b0),
+    .select_in3(1'b0),
+    .select_in4(1'b0)
+);
+    \end{minted}
+\end{subfigure}
+\caption{SystemNaim Master Multiplexer: Remote Function Call converted by SystemNaim}
+\label{sn:rmt_func_call_mst_mux}
+\end{figure}
+
+\subsubsection{Child FPGA Hardware}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.32\textwidth}
+    \centering
+    \begin{minted}{c}
+split_fpga{
+    a = func_a(3, 5);
+    b = func_b(3, 5);
+}
+\end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.58\textwidth}
+    \begin{minted}[breaklines]{Verilog}
+sysNaim_slave_mux mux0(
+    .clk(clk),
+    .start_in(data_to_hls_valid),
+    .opcode_in(opcode),
+    .dataa_in(dataa),
+    .datab_in(datab),
+    .data_to_host(data_from_hls),
+    .data_to_host_valid (data_from_hls_valid),
+
+    .start_out1(start1),
+    .dataa_out1(dataa1),
+    .datab_out1(datab1),
+    .data_from_remote1 (data_from_remote1),
+    .data_from_remote_valid1 (data_from_remote_valid1)
+);
+    \end{minted}
+\end{subfigure}
+\caption{SystemNaim Slave Multiplexer: Remote Function Call converted by SystemNaim \\ \textit{This module is instantiated on the child FPGA}}
+\label{sn:rmt_func_call_slv_mux}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.32\textwidth}
+    \centering
+    \begin{minted}{c}
+split_fpga{
+    a = func_a(3, 5);
+    b = func_b(3, 5);
+}
+\end{minted}
+\end{subfigure}%
+{\LARGE$\rightarrow$}%
+\begin{subfigure}{0.58\textwidth}
+    \begin{minted}[breaklines]{Verilog}
+func_a m1(
+    .clk(clk),
+    .clk_en(clk_en),
+    .reset(reset),
+    .start(start1),
+    .done(data_from_remote_valid1),
+    .d_out(data_from_remote1),
+    .a(dataa1),
+    .b(datab1)
+);
+    \end{minted}
+\end{subfigure}
+\caption{Remote Module Instantiation: Remote Function Call converted by SystemNaim \\ \textit{This module is instantiated on the child FPGA}}
+\label{sn:rmt_func_call_slv_mdl}
+\end{figure}
+        
+    
 
 \section{Inter-connect}
 

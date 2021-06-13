@@ -8,12 +8,12 @@
 \usepackage{hyperref}
 \hypersetup{colorlinks=false}
 \usepackage{lscape}
-\usepackage{subfigure}
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage[ruled, vlined]{algorithm2e}
 \usepackage{verbatim}
+\usepackage{subcaption}
 \usepackage{float}
 \usepackage{tikz}
 %\usepackage{algpseudocode}
@@ -32,6 +32,10 @@
 \usepackage{xcolor}
 \usepackage{bluespec}
 \usepackage{minted}
+\usepackage{tcolorbox}
+\usepackage{etoolbox}
+\BeforeBeginEnvironment{minted}{\begin{tcolorbox}}%
+\AfterEndEnvironment{minted}{\end{tcolorbox}}%
 \usepackage[compatibility=false]{caption}
 \usepackage{dirtree}
 

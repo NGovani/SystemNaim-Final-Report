@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{func\PYGZus{}a} \PYG{n}{m1}\PYG{p}{(}
+    \PYG{p}{.}\PYG{n}{clk}\PYG{p}{(}\PYG{n}{clk}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{clk\PYGZus{}en}\PYG{p}{(}\PYG{n}{clk\PYGZus{}en}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{reset}\PYG{p}{(}\PYG{n}{reset}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{start}\PYG{p}{(}\PYG{n}{start1}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{done}\PYG{p}{(}\PYG{n}{data\PYGZus{}from\PYGZus{}remote\PYGZus{}valid1}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{d\PYGZus{}out}\PYG{p}{(}\PYG{n}{data\PYGZus{}from\PYGZus{}remote1}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{a}\PYG{p}{(}\PYG{n}{dataa1}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{b}\PYG{p}{(}\PYG{n}{datab1}\PYG{p}{)}
+\PYG{p}{);}
+\end{Verbatim}

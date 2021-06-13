@@ -8,7 +8,14 @@ Currently, SystemNaim only allows for two FPGAs to communicate, one parent and o
 
 This could be added to the remote modules, which are instantiated on the parent FPGA, with each being configured at runtime to signal which child FPGA contains their function. The interconnect would then need to signal to the channel which child FPGA to deliver this command and opcodes to. With SPI this is pretty straightforward, every child FPGA would be connected to the same MISO and MOSI channel and  each would have their own SS\_EN (Slave Select Enable) signal, which would be asserted, by the parent FPGA, when that child FPGA was receiving a transaction. In the case of multiple off-chip functions being called at the same time, there would have to be a queue and the parent FPGA would call each function sequentially. Once it had finished calling all the necessary off-chip functions, it would then need to poll each of the activated child FPGAs, until their processing was complete, to return the result.
 
-The polling, in this case, would likely be done in a round-robin fashion. With each child FPGA being sent a polling transaction, as described in IMPLEMENTATION SECTION, in order until all results had been returned. This does have the potential of causing latency spikes for the entire system. As was explored in \autoref{sec:interconnect}, missing a polling transaction can result in a large amount of additional latency, especially at low SPI Clock speeds, and adding multiple child FPGAs the parent needs to poll can only increase the worst case of a child FPGA missing a polling transaction. The solution for this would be to either know the latency of the off-chip functions, and only poll that child FPGA when it is assumed to have finished computation, or switch to a communication channel where both parties can start a transaction, such as Ethernet.
+The polling, in this case, would likely be done in a round-robin fashion. With each child FPGA being sent a polling transaction, as described in IMPLEMENTATION SECTION, in order until all results had been returned, an example of this is shown in  \autoref{fig:polling_multi_child}. This does have the potential of causing latency spikes for the entire system. As was explored in \autoref{sec:interconnect}, missing a polling transaction can result in a large amount of additional latency, especially at low SPI Clock speeds, and adding multiple child FPGAs the parent needs to poll can only increase the worst case of a child FPGA missing a polling transaction. The solution for this would be to either know the latency of the off-chip functions, and only poll that child FPGA when it is assumed to have finished computation, or switch to a communication channel where both parties can start a transaction, such as Ethernet.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{06_future_work/images/interconnect_polling_multi_child.png}
+    \caption{Example of polling transactions with multiple child FPGAs}
+    \label{fig:polling_multi_child}
+\end{figure}
 
 \subsection{Ethernet}
 
@@ -69,8 +76,6 @@ In \autoref{sec:dedicated_hardware_computation}, a case when a FIFO would be opt
 
 Being able to store data is of vital important when creating a modern system, however, when deciding what features SystemNaim needed to implement to prove our aims we realized arrays weren't necessary. Nevertheless, in the future adding both of these constructs would vastly increase the versatility of SystemNaim, but not without their share of challenges. For arrays, multiple sources accessing the same part of memory would require multiplexers so that there wouldn't be any contention, which poses the risk of increasing the latency of each access. In terms of FIFO's, the challenge is more on the HLS side. Giving access to all aspects of the FIFO to the user would be tricky without using a class-based method inspired by C++'s OOP. This would result in potentially too large of a change in syntax, and at that point, instead of making changes to the base C language, it would be worth switching SystemNaim's base language to C++. The additional work while large, could open up more possibilities for different hardware modules to be added in the future, with member functions being the designated way of controlling and interfacing with them.
 
-Each addition would require a large amount of work but definitely has merits, and what would be achievable within SystemNaim after they had been added would be very interesting to investigate
-
 \subsection{FPGA Pins}
 
 The final addition that we believe SystemNaim would benefit from, is the ability for users to access FPGA pins from their top-level function. Pins on an FPGA are use as I/O and allow for external data streams to be processed on the FPGA. They are essential for most real world FPGA use cases, and giving users the ability to interface with external devices would make SystemNaim a more versatile tool. Users would be able to stream in data from an Ethernet or USB port and user their multi-FPGA system as an accelerator within a larger system. 
@@ -85,3 +90,37 @@ Another benefit of such a feature would be for child FPGAs to also be able to ac
     \item Potentially you could stream data through the channel in order to get more than two operands across.
     \item You could also split the channel into two. One for starting off-chip functions and one for streaming data between the FPGAs.
 \end{itemize}
+
+The final addition to SystemNaim that will be discusses is changes to the interconnect, specifically, being able to send more than two operands over the channel, and splitting the channel into two channels: control and data.
+
+\subsection{More than 2 Operands}
+
+A limiting factor on the variety of systems SystemNaim can implement is the fact that only two operands can be sent across the communication channel. Many functions require more operands to do any meaningful processing and some may even require an entire, or part of an array. Of course, increasing the number of operands sent over would also cause the transfer overhead, discussed in \autoref{sec:interconnect}, and thus would also increase the latency proportional to the number of integers sent over. 
+
+Currently, the interconnect can only send a fixed number of transactions, and thus if a system required 10 operands for one function call and 3 for another, the function call requiring 3 operands would include 7 wasted transactions. This could be somewhat mitigated by creating a packet system, where a start packet and end packet signal would be sent across the channel to indicate when a transaction begins and when it ends. However, this would introduce an overhead of 2 mandatory transactions, the start and end packets, thus making the latency worse for systems where only few operands are sent over the channel for all off-chip function calls. This would still be a good feature for systems where the range of operands, supplied to off-chip functions, in large, and potentially could be a feature which the user could enable to disable, depending on their needs.
+
+Another issue arises when we consider passing an array to an off-chip function, this array may contain hundreds of integers and in SystemNaim's current implementation, the child FPGA would wait until all the data was sent over the channel before commencing any processing. This would not only take a lot of cycles, especially on low SPI clock speeds, but would also require the storage of all this data. SystemNaim could be modified, however, to allow off-chip functions to start their processing before the entire array is transferred over the channel. This could be done using FIFO's and as long as the off-chip function was simply iterating over an array, it would simply be a matter of making the off-chip function poll a FIFO which would be filled up as elements of the array were received by the child FPGA. This would result in the processing of the function and the transmission of data over the channel to happen in parallel, thus decreasing the number of cycles and ridding the need for the child FPGA to store the incoming data. It should be noted that functions with irregular data access patterns would not benefit from this feature, for example, if a loop required elements 1 and 50 from an array to compute the first iteration, then the function would need to wait until element 50 had been transmitted over the channel before starting its processing.
+
+\subsection{Two Channels: Data \& Control}
+
+A feature that would be very useful in system with more than 2 FPGAs would be a split communication channel. The control channel would tell off-chip functions to start processing, while the data channel would feel these function the operands they required. The reason this works well for systems with more than one child FPGA is that the parent FPGA is no longer wasting cycles sending operands over the channel, and can instead send much smaller transactions, thus decreasing the wait time for a child FPGA before it receives its function call. This becomes especially important if SystemNaim allows for more than two operands or even arrays to be sent over, as the second child FPGA to be called on would have to wait for the first child FPGA to receive all of its data, which may take hundreds of channel transactions, before it receives its functions call. 
+
+The data channel in this case could be implemented in many ways. One would be to just have the parent FPGA to only send operands on the data channel, and to do it every time a function call was issued, and example of such a system is shown in \autoref{fig:data_control}. The child FPGA would then just have to wait to receive their operands on this channel, which would be ideal if you had one function call that required many operands and one that required none, as the latter wouldn't need to wait on the data channel and could start it's processing as soon as it received its transaction of the control channel. However, if you had two function calls, both of which required arrays as input, this system would only marginally reduce the total latency, as the second function would still need to wait for the first to receive all its data. The solution would be separate data channels between the parent FPGA and each child FPGA, as show in \autoref{fig:data_control_ind}. This would take up more pins on the parent FPGA, but it would result in a massive latency drops for systems which were constantly sending large amounts of data between the FPGAs. If this were implemented in tandem with the feature that allows off-chip functions to start processing before all the data has been sent over the channel, SystemNaim would be able to create multi-FPGA systems with small overheads, but which could still exploit parallelism in programs on a larger scale than a single FPGA system would be able to.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{06_future_work/images/data_control_channels.png}
+    \caption{Multi-FPGA system with separate data and control channels}
+    \label{fig:data_control}
+\end{figure}
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{06_future_work/images/data_control_channels_independent.png}
+    \caption{Multi-FPGA system with separate data and control channels. Each child FPGA has their own data channel.}
+    \label{fig:data_control_ind}
+\end{figure}
+
+\section{Closing Note}
+
+While all the features and solutions above may never be implemented, we feel that exploring and understanding the potential of SystemNaim is important in making the case that it is a stepping stone for future research. We hope that readers of this paper are inspired by these solutions when attempting to create their own multi-FPGA systems, or even their own HLS tool, and can see what possibilities lie ahead for tools such as SystemNaim.

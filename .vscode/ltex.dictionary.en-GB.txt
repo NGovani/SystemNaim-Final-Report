@@ -15,3 +15,6 @@ MOSI
 SSEN
 pipelining
 unpipelined
+FYP
+Vivado
+LegUp

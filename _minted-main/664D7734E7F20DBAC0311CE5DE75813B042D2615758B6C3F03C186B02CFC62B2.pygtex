@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{split\PYGZus{}fpga}\PYG{p}{\PYGZob{}}
+    \PYG{n}{a} \PYG{o}{=} \PYG{n}{func\PYGZus{}a}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{);}
+    \PYG{n}{b} \PYG{o}{=} \PYG{n}{func\PYGZus{}b}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{);}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

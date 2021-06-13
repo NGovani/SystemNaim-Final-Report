@@ -1,0 +1,18 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+nl}{assignment1:} \PYG{k}{begin}
+    \PYG{n}{state} \PYG{o}{\PYGZlt{}=} \PYG{n}{forCondExpr2}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{forCondExpr2:} \PYG{k}{begin}
+    \PYG{n}{state} \PYG{o}{\PYGZlt{}=} \PYG{n}{forBranch3}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{forBranch3:} \PYG{k}{begin}
+    \PYG{n}{state} \PYG{o}{\PYGZlt{}=} \PYG{n}{forCond1} \PYG{o}{?} \PYG{c+cm}{/*Stay*/} \PYG{o}{:} \PYG{c+cm}{/*Exit*/}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{c+c1}{// Start of code inside loop}
+\PYG{c+c1}{// ...}
+\PYG{c+c1}{// ...}
+\PYG{c+c1}{// End of code inside loop}
+\PYG{n+nl}{assignment4:} \PYG{k}{begin}
+    \PYG{n}{state} \PYG{o}{\PYGZlt{}=} \PYG{n}{forCondExpr2}\PYG{p}{;}
+\PYG{k}{end}
+\end{Verbatim}

@@ -1,0 +1,26 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+nl}{splitCall2:} \PYG{k}{begin}
+    \PYG{n}{a0\PYGZus{}next} \PYG{o}{=} \PYG{n}{x}\PYG{p}{;}
+    \PYG{n}{b0\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{32}\PYG{l+m+mi}{\PYGZsq{}d5}\PYG{p}{;}
+    \PYG{n}{func\PYGZus{}a\PYGZus{}start0\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{1}\PYG{l+m+mi}{\PYGZsq{}d1}\PYG{p}{;}
+    \PYG{n}{func\PYGZus{}a\PYGZus{}doneReg2\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{1}\PYG{l+m+mi}{\PYGZsq{}d0}\PYG{p}{;}
+    \PYG{n}{a5\PYGZus{}next} \PYG{o}{=} \PYG{n}{y}\PYG{p}{;}
+    \PYG{n}{b5\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{32}\PYG{l+m+mi}{\PYGZsq{}d5}\PYG{p}{;}
+    \PYG{n}{func\PYGZus{}b\PYGZus{}start5\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{1}\PYG{l+m+mi}{\PYGZsq{}d1}\PYG{p}{;}
+    \PYG{n}{func\PYGZus{}b\PYGZus{}doneReg7\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{1}\PYG{l+m+mi}{\PYGZsq{}d0}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{splitWait3:} \PYG{k}{begin}
+    \PYG{n}{func\PYGZus{}a\PYGZus{}start0\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{1}\PYG{l+m+mi}{\PYGZsq{}d0}\PYG{p}{;}
+    \PYG{n}{func\PYGZus{}a\PYGZus{}outData1\PYGZus{}next} \PYG{o}{=} \PYG{n}{func\PYGZus{}a\PYGZus{}done0} \PYG{o}{?} \PYG{n}{func\PYGZus{}a\PYGZus{}out0} \PYG{o}{:} \PYG{n}{func\PYGZus{}a\PYGZus{}outData1}\PYG{p}{;}
+    \PYG{n}{func\PYGZus{}a\PYGZus{}doneReg2\PYGZus{}next} \PYG{o}{=} \PYG{n}{func\PYGZus{}a\PYGZus{}done0} \PYG{o}{?} \PYG{l+m+mh}{1}\PYG{l+m+mb}{\PYGZsq{}b1} \PYG{o}{:} \PYG{n}{func\PYGZus{}a\PYGZus{}doneReg2}\PYG{p}{;}
+    \PYG{n}{func\PYGZus{}b\PYGZus{}start5\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{1}\PYG{l+m+mi}{\PYGZsq{}d0}\PYG{p}{;}
+    \PYG{n}{func\PYGZus{}b\PYGZus{}outData6\PYGZus{}next} \PYG{o}{=} \PYG{n}{func\PYGZus{}b\PYGZus{}done5} \PYG{o}{?} \PYG{n}{func\PYGZus{}b\PYGZus{}out5} \PYG{o}{:} \PYG{n}{func\PYGZus{}b\PYGZus{}outData6}\PYG{p}{;}
+    \PYG{n}{func\PYGZus{}b\PYGZus{}doneReg7\PYGZus{}next} \PYG{o}{=} \PYG{n}{func\PYGZus{}b\PYGZus{}done5} \PYG{o}{?} \PYG{l+m+mh}{1}\PYG{l+m+mb}{\PYGZsq{}b1} \PYG{o}{:} \PYG{n}{func\PYGZus{}b\PYGZus{}doneReg7}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{funcReturn4:} \PYG{k}{begin}
+    \PYG{n}{a\PYGZus{}next} \PYG{o}{=} \PYG{n}{func\PYGZus{}a\PYGZus{}outData1}\PYG{p}{;}
+\PYG{k}{end}
+\PYG{n+nl}{funcReturn5:} \PYG{k}{begin}
+    \PYG{n}{b\PYGZus{}next} \PYG{o}{=} \PYG{n}{func\PYGZus{}b\PYGZus{}outData6}\PYG{p}{;}
+\PYG{k}{end}
+\end{Verbatim}

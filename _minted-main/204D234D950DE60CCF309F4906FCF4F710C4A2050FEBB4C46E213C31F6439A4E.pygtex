@@ -1,0 +1,17 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{sysNaim\PYGZus{}slave\PYGZus{}mux} \PYG{n}{mux0}\PYG{p}{(}
+    \PYG{p}{.}\PYG{n}{clk}\PYG{p}{(}\PYG{n}{clk}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{start\PYGZus{}in}\PYG{p}{(}\PYG{n}{data\PYGZus{}to\PYGZus{}hls\PYGZus{}valid}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{opcode\PYGZus{}in}\PYG{p}{(}\PYG{n}{opcode}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{dataa\PYGZus{}in}\PYG{p}{(}\PYG{n}{dataa}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{datab\PYGZus{}in}\PYG{p}{(}\PYG{n}{datab}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{data\PYGZus{}to\PYGZus{}host}\PYG{p}{(}\PYG{n}{data\PYGZus{}from\PYGZus{}hls}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{data\PYGZus{}to\PYGZus{}host\PYGZus{}valid} \PYG{p}{(}\PYG{n}{data\PYGZus{}from\PYGZus{}hls\PYGZus{}valid}\PYG{p}{),}
+
+    \PYG{p}{.}\PYG{n}{start\PYGZus{}out1}\PYG{p}{(}\PYG{n}{start1}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{dataa\PYGZus{}out1}\PYG{p}{(}\PYG{n}{dataa1}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{datab\PYGZus{}out1}\PYG{p}{(}\PYG{n}{datab1}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{data\PYGZus{}from\PYGZus{}remote1} \PYG{p}{(}\PYG{n}{data\PYGZus{}from\PYGZus{}remote1}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{data\PYGZus{}from\PYGZus{}remote\PYGZus{}valid1} \PYG{p}{(}\PYG{n}{data\PYGZus{}from\PYGZus{}remote\PYGZus{}valid1}\PYG{p}{)}
+\PYG{p}{);}
+\end{Verbatim}

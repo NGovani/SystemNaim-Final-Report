@@ -1,0 +1,21 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{sysNaim\PYGZus{}master\PYGZus{}mux} \PYG{n}{mux0}\PYG{p}{(}
+    \PYG{p}{.}\PYG{n}{clk}\PYG{p}{(}\PYG{n}{clk}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{start\PYGZus{}out}\PYG{p}{(}\PYG{n}{start\PYGZus{}out}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{opcode\PYGZus{}out}\PYG{p}{(}\PYG{n}{opcode\PYGZus{}out}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{dataa\PYGZus{}out}\PYG{p}{(}\PYG{n}{dataa\PYGZus{}out}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{datab\PYGZus{}out}\PYG{p}{(}\PYG{n}{datab\PYGZus{}out}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{data\PYGZus{}from\PYGZus{}remote}\PYG{p}{(}\PYG{n}{data\PYGZus{}from\PYGZus{}remote}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{data\PYGZus{}from\PYGZus{}remote\PYGZus{}valid} \PYG{p}{(}\PYG{n}{data\PYGZus{}from\PYGZus{}remote\PYGZus{}valid}\PYG{p}{),}
+
+    \PYG{p}{.}\PYG{n}{select\PYGZus{}in1}\PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}start\PYGZus{}out0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{dataa\PYGZus{}in1}\PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}dataa0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{datab\PYGZus{}in1}\PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}datab0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{data\PYGZus{}from\PYGZus{}remote\PYGZus{}in1} \PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}return0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{data\PYGZus{}from\PYGZus{}remote\PYGZus{}valid\PYGZus{}in1} \PYG{p}{(}\PYG{n}{func\PYGZus{}a\PYGZus{}returnValid0}\PYG{p}{),}
+
+    \PYG{p}{.}\PYG{n}{select\PYGZus{}in2}\PYG{p}{(}\PYG{l+m+mh}{1}\PYG{l+m+mb}{\PYGZsq{}b0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{select\PYGZus{}in3}\PYG{p}{(}\PYG{l+m+mh}{1}\PYG{l+m+mb}{\PYGZsq{}b0}\PYG{p}{),}
+    \PYG{p}{.}\PYG{n}{select\PYGZus{}in4}\PYG{p}{(}\PYG{l+m+mh}{1}\PYG{l+m+mb}{\PYGZsq{}b0}\PYG{p}{)}
+\PYG{p}{);}
+\end{Verbatim}
