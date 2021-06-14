@@ -1,11 +1,6 @@
 \chapter{Evaluation}
 
-\section{Introduction}
-
-\begin{itemize}
-    \item Talk about why the three sections below are being talked about
-\end{itemize}
-
+Evaluation is an important part of deciding whether SystemNaim achieved its aims \& goals. The following sections discuss: interconnect performance, program affinity and usability of SystemNaim, and attempt to gain insight into the issues or benefits produced by the tool.
 
 \section{Interconnect Performance}
 \label{sec:interconnect}
@@ -14,7 +9,7 @@ Calling a function implemented in hardware off-chip is not latency free. There w
 
 Since the decision was made to implement an SPI communication channel for the final product, we had to into consideration the SPI clock speed used by the system. On an SPI channel, a single bit is sent on every cycle of the SPI clock meaning it takes 32 SPI Clock cycles to send single 32-bit integer. Increasing the SPI Clock speed allows for a higher performing channel, which is able to send data in a shorter period, however, this increase comes at the cost of reliability. This section explores the effect of the SPI Clock rate on a test system. We will attempt to prove that increasing the clock speed does reduce the total overhead, but will also investigate the overhead added from the interconnect to the latency of the system.
 
-\subsection{Test Model}
+\subsection{Mathematical Model for Overhead Latency}
 
 In order to find out how much of the latency of a multi-FPGA system, created in SystemNaim, can be attributed to the interconnect, we must first devise a model that can tell us what data needs to be gathered. At it's most simple, we can model the latency of a system as the sum of the time taken to perform the actual processing i.e. the code that the user entered into the tool, and the time taken to encode, transmit, receive, and decode the data across the SPI channel i.e. the overhead. \autoref{eqn:tot_sys_latency}, shows the mathematical equivalent of the previous statement.
 
@@ -67,7 +62,7 @@ Given those results we prove that we can use the MTSC latency in the MTMC calcul
     \label{fig:multi_fpga_call}
 \end{figure}
 
-\subsection{Channel Bandwidth}
+\subsubsection{Channel Bandwidth}
  
 We can further dissect the overhead latency and split it into two parts. The transfer overhead, $L_{t\_overhead}$, which is latency cost incurred for transmitting and receiving data over a channel and the interconnect overhead, $L_{i\_overhead}$, which is the latency cost from encoding and decoding the data transmitted. Essentially, the latter part comes from the hardware designed specifically for SystemNaim, whereas the former is merely the limit of the channel. In an ideal world the interconnect overhead would be 0 and only the transfer overhead would exist. 
 
@@ -87,9 +82,9 @@ For SystemNaim, we know that any off-chip function call requires 128 bits of dat
     \label{eqn:overhead}
 \end{equation}
 
-\subsection{Testing}
+\subsection{Test model}
 
-With the maths and the modelling in place we can now being testing the system to see if we can get an experimental value for the overhead and how it is affected by the SPI clock speed. For this test we use a program which calls 2 function, which are syntactically the same, and then exits. We first compile the program with both functions being called within a “split” block and test the latency of this MTSC system. Afterwards we test the same program, but we replace the “split” keyword with the “split-fpga” keyword, this will be the MTMC system. 
+With the maths and the modelling in place we can now begin testing the system to see if we can get an experimental value for the overhead and how it is affected by the SPI clock speed. For this test we use a program which calls 2 function, which are syntactically the same, and then exits. We first compile the program with both functions being called within a “split” block and test the latency of this MTSC system. Afterwards we test the same program, but we replace the “split” keyword with the “split-fpga” keyword, this will be the MTMC system. 
 
 The MTMC system will be run multiple times with varying SPI clock speeds, and for each test we will compare the latencies between the MTMC and MTSC systems, compute the transfer overhead and find the interconnect overhead.
 
@@ -142,20 +137,11 @@ This instability may have been caused by the physical components of the channel 
 
 The more interesting result from the gathered data, however, comes from the trend of the \textbf{Interconnect Overhead}. While it would be expected that the latency from the interconnect would be generally static, with only minor fluctuations since the task of encoding data should be uniform, what we see instead is a generally decreasing trend except for a steep rise in latency at 312,500Hz. This behaviour, however, makes complete sense given the design of the interconnect and is a consequence of the SPI channel only allowing the master to initiate transactions. 
 
-As explained in SOME IMPLEMENTATION SECTION, the child FPGA cannot indicate to the parent FPGA when it has completed processing its off-chip function. Therefore, in order to receive the return data the parent FPGA must continuously send polling transactions on the SPI channel. When any transaction is started by the master SPI core on the parent FPGA, the slave SPI core starts simultaneously transmitting data stored in an internal register. At some point during operation, this internal register will contain the result of the off-chip function call, but that point cannot be determined beforehand and thus arises the need for continuous polling transactions, a diagram of this process is shown in \autoref{fig:interconnect_polling}. Because of this, when the off-chip function is complete, and it passes the result to the SPI slave core, the core must wait for the current polling transaction to finish before the next one starts, and then it can send the valid return data. Therein lies the issue, the wait for a current transaction to finish.
+As explained in \autoref{sec:impl_interconnect}, the child FPGA cannot indicate to the parent FPGA when it has completed processing its off-chip function. Therefore, in order to receive the return data the parent FPGA must continuously send polling transactions on the SPI channel. Because of this, when the off-chip function is complete, and it passes the result to the SPI slave core, the core must wait for the current polling transaction to finish before the next one starts, and then it can send the valid return data. Therein lies the issue, the wait for a current transaction to finish.
 
 The worst case for this scenario is if the slave SPI core has to wait for a full transaction, minus one cycle, to complete before it can send its data. At lower clock rates this can take thousands of cycles, more specifically $32 * L_channel$ cycles, since each transaction consists of 32 bits. Furthermore, how close the end time of an off-chip function is to the end of any given polling transaction is dependent on both the SPI clock speed and the latency of the function itself, therefore it becomes incredibly difficult to avoid the worse case scenario and the interconnect overhead becomes stochastic in nature. However, we can minimize the interconnect overhead by increasing the SPI clock speed, as this reduces the number of system cycles it takes for a polling transaction to finish and thus also the number of system cycles the slave SPI core has to wait in the worse case scenario.
 
 In conclusion, we should try to maximize the SPI clock speed as this reduces the transfer overhead, and minimizes the worst case for the interconnect overhead, thus, increasing the performance of the MTMC system.
-
-
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=0.9\textwidth]{05_evaluation/images/interconnect_polling.png}
-    \caption{Example of interconnect communication protocol in practice}
-    \label{fig:interconnect_polling}
-\end{figure}
-
 
 \section{System Performance}
 \label{sec:sys_perf}

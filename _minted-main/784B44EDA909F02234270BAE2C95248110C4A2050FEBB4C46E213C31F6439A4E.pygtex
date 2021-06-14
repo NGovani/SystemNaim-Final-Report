@@ -5,4 +5,7 @@
 \PYG{n+nl}{funcWait2:} \PYG{k}{begin}
     \PYG{n}{state} \PYG{o}{\PYGZlt{}=} \PYG{n}{func\PYGZus{}done0} \PYG{o}{?} \PYG{n}{assignment3} \PYG{o}{:} \PYG{n}{state}\PYG{p}{;}
 \PYG{k}{end}
+\PYG{n+nl}{assignment3:} \PYG{k}{begin}
+	\PYG{n}{state} \PYG{o}{\PYGZlt{}=} \PYG{n}{return5}\PYG{p}{;}
+\PYG{k}{end}
 \end{Verbatim}

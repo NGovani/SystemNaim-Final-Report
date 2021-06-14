@@ -18,3 +18,5 @@ unpipelined
 FYP
 Vivado
 LegUp
+NIOS
+splitfpga

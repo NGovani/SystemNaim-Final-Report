@@ -8,4 +8,7 @@
     \PYG{n}{func\PYGZus{}start0\PYGZus{}next} \PYG{o}{=} \PYG{l+m+mh}{1}\PYG{l+m+mi}{\PYGZsq{}d0}\PYG{p}{;}
     \PYG{n}{func\PYGZus{}outData1\PYGZus{}next} \PYG{o}{=} \PYG{n}{func\PYGZus{}done0} \PYG{o}{?} \PYG{n}{func\PYGZus{}out0} \PYG{o}{:} \PYG{n}{func\PYGZus{}outData1}\PYG{p}{;}
 \PYG{k}{end}
+\PYG{n+nl}{assignment3:} \PYG{k}{begin}
+	\PYG{n}{x\PYGZus{}next} \PYG{o}{=} \PYG{n}{func\PYGZus{}outData1}\PYG{p}{;}
+\PYG{k}{end}
 \end{Verbatim}
