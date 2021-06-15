@@ -38,6 +38,7 @@
 \AfterEndEnvironment{minted}{\end{tcolorbox}}%
 \usepackage[compatibility=false]{caption}
 \usepackage{dirtree}
+\usepackage[nounderscore]{syntax}
 
 
 \usepackage{array}
@@ -86,20 +87,57 @@
 \usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=2cm]{geometry}
 
 \begin{document}
+    \begin{titlepage}
+        % \newgeometry{top=25mm,bottom=25mm,left=38mm,right=32mm}
+        \setlength{\parindent}{0pt}
+        \setlength{\parskip}{0pt}
+        % \fontfamily{phv}\selectfont
+
+        {
+                        \Large
+                        \raggedright
+                        Imperial College London\\[17pt]
+                        Department of Electrical and Electronic Engineering\\[17pt]
+                        Final Year Project Report 2014\\[17pt]
+
+        }
+
+        \rule{\columnwidth}{3pt}
+        \vfill
+        \centering
+        \vfill
+        \setlength{\tabcolsep}{0pt}
+
+        \begin{tabular}{p{40mm}p{\dimexpr\columnwidth-40mm}}
+                        Project Title: & \textbf{SystemNaim: High-level Synthesis for multi-FPGA systems } \\[12pt]
+                        Student: & \textbf{Naim Govani} \\[12pt]
+                        CID: & \textbf{01371045} \\[12pt]
+                        Course: & \textbf{EIE4} \\[12pt]
+                        Project Supervisor: & \textbf{Dr David Thomas} \\[12pt]
+                        Second Marker: & \textbf{Dr John Wickerson} \\
+        \end{tabular}
+    \end{titlepage}
+
+    \begin{center}
+        \textbf{\huge Final Report Plagiarism Statement }
+    \end{center}
+
+    \noindent I affirm that I have submitted, or will submit, an electronic copy of my final year project report to the provided EEE link. \\ \\
+    I affirm that I have provided explicit references for all the material in my Final Report that is not authored by me, but is represented as my own work.
+    \newpage
+    
     \setlength{\parskip}{4pt}
-    % The Title, Author Name, Date, and abstract go here
-    \title{SystemNaim FYP Final Report}
-    \author{Naim Govani}
-    \date{\today}
-    \maketitle
+    \setlength{\parindent}{4pt}
+
+    \input{00_abstract/index.tex}
 
     \tableofcontents    
     % if you are adding a new chapter, create a new folder in the root directory of the project
     % it should begin with a two digit number, followed by an underscore and the name of the section.
     % This keeps the order of the sections in the side view in keeping with the order of the document.
+
+
     
-    
-    \input{00_abstract/index.tex}
     \input{01_project_intro/index.tex}
     \input{02_background/index.tex}
     \input{03_design/index.tex}

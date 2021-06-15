@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{split}\PYG{p}{\PYGZob{}}
+    \PYG{n}{holda} \PYG{o}{=} \PYG{n}{func\PYGZus{}a}\PYG{p}{(}\PYG{n}{h}\PYG{p}{,} \PYG{n}{n}\PYG{o}{/}\PYG{l+m+mh}{2}\PYG{p}{);}
+    \PYG{n}{holdb} \PYG{o}{=} \PYG{n}{func\PYGZus{}b}\PYG{p}{(}\PYG{n}{h}\PYG{p}{,} \PYG{p}{(}\PYG{n}{n}\PYG{o}{/}\PYG{l+m+mh}{2}\PYG{o}{\PYGZhy{}}\PYG{l+m+mh}{1}\PYG{p}{));}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

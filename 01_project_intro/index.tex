@@ -1,7 +1,9 @@
 \chapter{Introduction to SystemNaim}
-
+\label{sec:intro}
 
 \section{Aims}
+
+The purpose of this thesis is to explore the potential of a multi-FPGA HLS tool. We decided to investigate whether such a tool would be both viable and useful to the community at large, and thus we create our own limited multi-FPGA HLS tool known as SystemNaim, in order to answer the questions of this investigation.
 
 SystemNaim is a HLS tool which allows users to create multi-FPGA systems. We would like to prove, through SystemNaim, that it is possible to give a larger group of people the ability to utilize the benefits of multi-FPGA system without requiring them to spend months learning to develop hardware. In the future, users, such as Researches and Businesses, should be able to create large systems with multiple FPGAs working in tandem without the need for exorbitant development times, and we hope that the investigations and conclusions laid out in this paper act as a stepping stone for future research in this field.
 
@@ -42,14 +44,26 @@ One of the major limitations of any hardware implementation is the resources ava
     \item \textbf{LUTs}: For logic processing.
 \end{itemize}
 
-If the programmer finds themselves having exhausted the resources on the board but still in need of more, they have a few options that they can explore. The first and usually the most practical is to re-structure the design. This may include adding pipeline stages to remove timing violations, moving to data storage off-chip to increase on-chip memory space or reusing modules in multiple parts of the design to save on LUTs. All optimisations while viable do have downsides and considerations the programmer must take in to account before proceeding. The next option would be to get a device with more resources available, while ideal this option may not be possible either because the new device would be too expensive or more likely the programmer has been given a specification and a part of it is to use this specific device. The third option and the one of interest to this report is to use multiple FPGAs in parallel to compute different parts of the syste, thus giving the programmer access to more resources.
+If the programmer finds themselves having exhausted the resources on the board but still in need of more, they have a few options that they can explore. The first and usually the most practical is to re-structure the design. This may include adding pipeline stages to remove timing violations, moving to data storage off-chip to increase on-chip memory space or reusing modules in multiple parts of the design to save on LUTs. All optimizations while viable do have downsides and considerations the programmer must take in to account before proceeding. The next option would be to get a device with more resources available, while ideal this option may not be possible either because the new device would be too expensive or more likely the programmer has been given a specification and a part of it is to use this specific device. The third option and the one of interest to this report is to use multiple FPGAs in parallel to compute different parts of the system, thus giving the programmer access to more resources.
 
-Utilising a multi-FPGA system to overcome the limitations of a single FPGA has been the focal point for many research fronts including: DNN Inference\cite{10.1145/3358192}, Energy Conversion System Simulation\cite{8822485}, Large Graph Processing\cite{10.1145/3020078.3021739}, and CNN Acceleration \cite{10.1145/3337821.3337846} and thus proves there is benefit to allowing more people access to such systems. There are of course drawbacks for this method such as the overhead communication cost between the two FPGAs and those will be explored later in the report.
+Utilizing a multi-FPGA system to overcome the limitations of a single FPGA has been the focal point for many research fronts including: DNN Inference\cite{10.1145/3358192}, Energy Conversion System Simulation\cite{8822485}, Large Graph Processing\cite{10.1145/3020078.3021739}, and CNN Acceleration \cite{10.1145/3337821.3337846} and thus proves there is benefit to allowing more people access to such systems. There are of course drawbacks for this method such as the overhead communication cost between the two FPGAs and those will be explored later in the report.
 
 
-\section{Further Contributions}
+\section{Contributions}
+\label{sec:contributions}
 
-We hope that this paper can convince readers that giving more people the ability to implement multi-FPGA systems is not only a beneficial endeavour but also a realistic one. However, we don't think that will be the only contribution this project makes. Beyond laying a platform for future investigations, we'd like to present two additional results of this project. The first is the HLS tool developed, which forms the basis of SystemNaim. The software created for the purpose of converting C code to Verilog is straightforward and bare bones, as will be explored in later sections, but this comes with the benefit of it also being easy to modify and develop further. We hope it can be used as a platform, to either teach about methods of transpiling software to HDL or as basis for further research in the HLS sphere.
+Throughout this thesis we will be focused on proving SystemNaim has made the following contributions:
+
+\begin{itemize}
+    \item Proved it is possible to automate the process of creating a multi-FPGA system.
+    \item Proved that the tool which performs such a task, can reduce the hardware proficiency needed by the user to create a multi-FPGA system.
+    \item Showed that this tool also reduces the development time of implementing a multi-FPGA system.
+    \item Additionally, showed that a system generated by the tool, allows the user to achieve a latency decrease.
+\end{itemize}
+
+\subsection{Further Contributions}
+
+We hope that this paper can convince readers that giving more people the ability to implement multi-FPGA systems is not only a beneficial endeavour but also a realistic one. However, we don't think the contributions listed above are the only ones this project makes. In addition to the aforementioned contributions, we'd like to present two additional results of this project. The first is the HLS tool that has been developed as the basis of SystemNaim. It was made for the purpose of converting C code to Verilog in a straightforward manner, as will be explored in later sections, but this comes with the benefit of it also being easy to modify and develop further. We hope it can be used as a platform, to either teach about methods of transpiling software to HDL or as basis for further research in the HLS sphere.
 
 The second additional contribution is the interconnect designed to connect the HLS to the communication channel. The implementation for it will be discussed in another section, however, it should be noted that it has been designed with modularity in mind to allow it to be used across different systems. Either with different communication channels or with different HLS tools, or even within a dedicated hardware system as an IP core, it will hopefully ease the process of creating a multi-FPGA system. 
 

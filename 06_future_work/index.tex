@@ -10,7 +10,7 @@ This could be added to the remote modules, which are instantiated on the parent 
 
 The polling, in this case, would likely be done in a round-robin fashion. With each child FPGA being sent a polling transaction, as described in IMPLEMENTATION SECTION, in order until all results had been returned, an example of this is shown in  \autoref{fig:polling_multi_child}. This does have the potential of causing latency spikes for the entire system. As was explored in \autoref{sec:interconnect}, missing a polling transaction can result in a large amount of additional latency, especially at low SPI Clock speeds, and adding multiple child FPGAs the parent needs to poll can only increase the worst case of a child FPGA missing a polling transaction. The solution for this would be to either know the latency of the off-chip functions, and only poll that child FPGA when it is assumed to have finished computation, or switch to a communication channel where both parties can start a transaction, such as Ethernet.
 
-\begin{figure}[!h]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.9\textwidth]{06_future_work/images/interconnect_polling_multi_child.png}
     \caption{Example of polling transactions with multiple child FPGAs}
@@ -27,7 +27,7 @@ The additional effort required to get an Ethernet communication channel working 
 
 When allowing for systems with 3+ FPGAs a decision has to be made as to whether the user should decide which off-chip functions go on which child FPGA. The essence of SystemNaim is to give the user as much control over the end product as possible and merely remove the tedious hardware development aspects, and thus we'd likely incorporate a method that allowed the user to choose which functions are called on which FPGAs. An example of how this is possible is shown in \autoref{fig:multi_fgpa_hls}. Inspiration was drawn from the C++ STL, with the number between the “<>” symbol representing which child FPGA the function would be placed on (0 could mean the function should be run on the parent FPGA). Off all the challenges that would likely be faced when implementing this addition, the modification to the software side is probably the least difficult in a technical sense, however, the final decision on its implementation will define how users interact with this aspect of the system, and thus it is worth conducting a design investigation if there are any plans to ever add this feature in the future.
 
-\begin{figure}[!h]
+\begin{figure}[!htb]
     \centering
     \begin{minipage}{0.5\textwidth}
     \begin{minted}{c}
@@ -107,14 +107,14 @@ A feature that would be very useful in system with more than 2 FPGAs would be a 
 
 The data channel in this case could be implemented in many ways. One would be to just have the parent FPGA to only send operands on the data channel, and to do it every time a function call was issued, and example of such a system is shown in \autoref{fig:data_control}. The child FPGA would then just have to wait to receive their operands on this channel, which would be ideal if you had one function call that required many operands and one that required none, as the latter wouldn't need to wait on the data channel and could start it's processing as soon as it received its transaction of the control channel. However, if you had two function calls, both of which required arrays as input, this system would only marginally reduce the total latency, as the second function would still need to wait for the first to receive all its data. The solution would be separate data channels between the parent FPGA and each child FPGA, as show in \autoref{fig:data_control_ind}. This would take up more pins on the parent FPGA, but it would result in a massive latency drops for systems which were constantly sending large amounts of data between the FPGAs. If this were implemented in tandem with the feature that allows off-chip functions to start processing before all the data has been sent over the channel, SystemNaim would be able to create multi-FPGA systems with small overheads, but which could still exploit parallelism in programs on a larger scale than a single FPGA system would be able to.
 
-\begin{figure}[!h]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.4\textwidth]{06_future_work/images/data_control_channels.png}
     \caption{Multi-FPGA system with separate data and control channels}
     \label{fig:data_control}
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.4\textwidth]{06_future_work/images/data_control_channels_independent.png}
     \caption{Multi-FPGA system with separate data and control channels. Each child FPGA has their own data channel.}

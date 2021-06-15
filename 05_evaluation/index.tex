@@ -1,4 +1,5 @@
 \chapter{Evaluation}
+\label{chp:eval}
 
 Evaluation is an important part of deciding whether SystemNaim achieved its aims \& goals. The following sections discuss: interconnect performance, program affinity and usability of SystemNaim, and attempt to gain insight into the issues or benefits produced by the tool.
 
@@ -18,13 +19,13 @@ In order to find out how much of the latency of a multi-FPGA system, created in 
     \label{eqn:tot_sys_latency}
 \end{equation}
 
-In order to find $L_{processing}$ from \autoref{eqn:tot_sys_latency} we make the following assumption: the total processing time, in cycles, for a multi-FPGA system is the same as a single FPGA system where both the off-chip function and on-chip function, from the former system, are run in parallel. In essence, if we measure the latency of a system that has been created on a single FGPA using SystemNaim's “split” keyword then we can assume the total latency of this system is equal to $L_{processing}$ for a multi-FPGA system where “split” has been replaced with “split-fpga”.
+In order to find $L_{processing}$ from \autoref{eqn:tot_sys_latency} we make the following assumption: the total processing time, in cycles, for a multi-FPGA system is the same as a single FPGA system where both the off-chip function and on-chip function, from the former system, are run in parallel. In essence, if we measure the latency of a system that has been created on a single FPGA using SystemNaim's “split” keyword then we can assume the total latency of this system is equal to $L_{processing}$ for a multi-FPGA system where “split” has been replaced with “split-fpga”.
 
-Before we continue an important side note, $L_{rest}$ will refer to the latency caused by the processing outside the function call i.e. the processing before and after the function call. In terms of hardware SystemNaim generates the exact same in both the single FPGA and multi-FPGA case before and after the function call. Furthermore, for simplicity the single FPGA system with parallel hardware will be called the Multi-Thread Single Chip (MTSC) system, as it denotes parallel computation on a single chip, likewise, the multi-FPGA system will be referred to as the Multi-Thread Multi-Chip (MTMC) system. 
+Before we continue an important side note, $L_{rest}$ will refer to the latency caused by the processing outside the function call i.e. the processing before and after the function call. We can assume this because SystemNaim generates the exact same hardware in both the single FPGA and multi-FPGA case before and after the function call. Furthermore, for simplicity the single FPGA system with parallel hardware will be called the Multi-Thread Single Chip (MTSC) system, as it denotes parallel computation on a single chip, likewise, the multi-FPGA system will be referred to as the Multi-Thread Multi-Chip (MTMC) system. 
 
 We can prove that $L_{processing} = L_{MTSC}$, where $L_{MTSC}$ is the total latency for an MTSC system, if we place the following constraint on the system: all parallel functions in the system must have the same latency.
 
-\autoref{fig:multi_func_call} is a diagram representing the program path for a multi-function call in an MTSC system. As can be seen the total latency $L_f = max(L_1,L_2)$, however with our constraint $L_1 = L_2$, and thus we can simplify to \autoref{eqn:fcl_2}. \autoref{fig:multi_fpga_call} shows a similar diagram for the MTMC case. Assuming both functions are the same and that $L_{I1} > 0 \&\& L_{I2} > 0 $ then equations \ref{eqn:mtmc_latency_start} to \ref{eqn:mtmc_latency} hold. 
+\autoref{fig:multi_func_call} is a diagram representing the program path for a multi-function call in an MTSC system. As can be seen the total latency $L_f = max(L_1,L_2)$, however with our constraint $L_1 = L_2$, and thus we can simplify to \autoref{eqn:fcl_2}. \autoref{fig:multi_fpga_call} shows a similar diagram for the MTMC case. Assuming both functions are the same and that $L_{I1} > 0 \text{and} L_{I2} > 0 $ then equations \ref{eqn:mtmc_latency_start} to \ref{eqn:mtmc_latency} hold. 
 
 \begin{align}
     &L_{f\_MTSC} = L_1 \label{eqn:fcl_1} \\
@@ -187,19 +188,25 @@ Finally, by comparing the MTSC latency and the calculate overhead we can guage w
 
 \begin{sidewaystable}
     \centering
+    
+    \begin{threeparttable}
     \begin{tabular}{l|l|l|l|l|l}
-    \textbf{Iterations ($n$)} & \textbf{STSC Latency (Cycles)} & \textbf{MTSC Latency (Cycles)} & \textbf{MTMC Latency (Cycles)} & \textbf{Overhead (Cycles)}\\ \hline
-     200        & 2,572               & 1,370                 & 2,839                 &  1,469                 \\
-     400        & 5,072               & 2,670                 & 4,215                 &  1,545                 \\
-     600        & 7,572               & 3,970                 & 5,591                 &  1,621                 \\
-     800        & 10,072              & 5,270                 & 6,967                 &  1,697                 \\
-     1000       & 12,572              & 6,570                 & 7,999                 &  1,429                 \\
-     1200       & 15,072              & 7,870                 & 9,375                 &  1,505                 \\
-     1400       & 17,572              & 9,170                 & 10,751                &  1,581                 \\
-     1600       & 20,054              & 10,470                & 12,127                &  1,657                 \\
-     1800       & 22,572              & 11,770                & 13,503                &  1,733                 \\
-     2000       & 25,072              & 13,070                & 14,535                &  1,465                 \\                                 
+    \textbf{Iterations ($n$)} & \textbf{STSC Latency} & \textbf{MTSC Latency} & \textbf{MTMC Latency} & \textbf{Overhead} & \textbf{STSC to MTMC Latency Reductions}\\ \hline
+     200        & 2,572               & 1,370                 & 2,839                 &  1,469         &    -10.38\%    \\
+     400        & 5,072               & 2,670                 & 4,215                 &  1,545         &    16.9\%    \\
+     600        & 7,572               & 3,970                 & 5,591                 &  1,621         &    26.1\%    \\
+     800        & 10,072              & 5,270                 & 6,967                 &  1,697         &    30.1\%    \\
+     1000       & 12,572              & 6,570                 & 7,999                 &  1,429         &    36.4\%    \\
+     1200       & 15,072              & 7,870                 & 9,375                 &  1,505         &    37.8\%    \\
+     1400       & 17,572              & 9,170                 & 10,751                &  1,581         &    38.8\%    \\
+     1600       & 20,054              & 10,470                & 12,127                &  1,657         &    39.5\%    \\
+     1800       & 22,572              & 11,770                & 13,503                &  1,733         &    40.2\%    \\
+     2000       & 25,072              & 13,070                & 14,535                &  1,465         &    42.0\%    \\                                 
     \end{tabular}
+    \begin{tablenotes}\footnotesize
+        \item Latencies are measured in cycles
+        \end{tablenotes}
+    \end{threeparttable}
     \caption{Effect of Program iterations on total latency}
     \label{tbl:system_results}
 \end{sidewaystable}
@@ -207,7 +214,7 @@ Finally, by comparing the MTSC latency and the calculate overhead we can guage w
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.9\textwidth]{05_evaluation/images/latency_vs_iter.png}
-    \caption{Latencies of different systems as iterations of program increase}
+    \caption{Latencies of different systems as iterations of program increase \\ \textit{STSC = Single Thread Single Chip, MTSC = Multi Thread Single Chip and MTMC = Multi Thread Multi Chip }}
     \label{fig:latency_v_iter}
 \end{figure}
 
@@ -220,24 +227,24 @@ Finally, by comparing the MTSC latency and the calculate overhead we can guage w
 
 \subsection{Conclusions}
 
-Our main conclusion from this investigation is that as we increase the number of iterations the program has to perform the overhead in the MTMC system contributes less to the overall latency. This claim is supported by \autoref{fig:overhead_percent}, as you can see that with a declining trend in the percentage contribution from the overhead as iterations increases. What we can then conclude is that MTMC systems in which the off-chip function has a large processing latency will perform more equally to their MTSC equivalent systems, therefore, it advised to users of SystemNaim to code their programs in such a way that the designated off-chip function has as much processing time as possible i.e. it has a loop with a large bound within it. One thing of note, is that the stochastic nature of the interconnect is likely due to the polling issue mentioned in the previous investigation, however as can be seen in \autoref{tbl:system_results}, the overhead tends to be centred around an average value of 1,570 cycles which is close to the overhead measured in \autoref{tbl:spi_clk_results} for the 5MHz SPI clock, the same speed as the SPI clock in this investigation. The range of the measured overheads is 304 cycles, thus, the total overhead latency will be at most 20\% away from the average. This can be seen as an issue for programs with low latencies, but as mentioned above those programs wouldn't be advisable for SystemNaim.
+Our main conclusion from this investigation is that as we increase the number of iterations the program has to perform, the overhead in the MTMC system contributes less to the overall latency. This claim is supported by \autoref{fig:overhead_percent}, as you can see that with a declining trend in the percentage contribution from the overhead as iterations increases. What we can then conclude is that MTMC systems in which the off-chip function has a large processing latency will perform more equally to their MTSC equivalent systems, therefore, it advised to users of SystemNaim to code their programs in such a way that the designated off-chip function has as much processing time as possible i.e. it has a loop with a large bound within it. If the users fails to do so, they might end up with an MTMC system that performs worse than its STSC counterpart, as can be seen in \autoref{fig:latency_v_iter} when steps = 200. 
 
-Further, by observing the relationship between the latency of the STSC and MTSC system in \autoref{fig:latency_v_iter}, and \autoref{tbl:system_results}, we can see that exploiting the parallelism in the program gave us approximately a 2x speed up, this is due to the fact that there were two sums, $s_1$ and $s_2$, that we calculated in parallel. We can extrapolate from this and say that if you had a program which had three segments which could be run in parallel you would be able to achieve a 3x speed up, and as you increase the number of parallel segments, be they a loop or some other part of the program, you can achieve further performance increases. Therefore, it is advisable to users of SystemNaim to analyse, and potentially rewrite, to exploit as much parallelism as possible.
+Further, by observing the relationship between the latency of the STSC and MTSC system in \autoref{fig:latency_v_iter}, and \autoref{tbl:system_results}, we can see that exploiting the parallelism in the program gave us approximately 48\% reduction in latency, this is due to the fact that there were two sums, $s_1$ and $s_2$, that we calculated in parallel. We can extrapolate from this and say that if you had a program which had three segments which could be run in parallel you would be able to achieve a 3x speed up, and as you increase the number of parallel segments, be they a loop or some other part of the program, you can achieve further performance increases. Therefore, it is advisable to users of SystemNaim to analyse, and potentially rewrite, to exploit as much parallelism as possible while also offloading as much processing to the child as possible.
 
-However, a user must be careful in where they place their off-chip function call. If placed within a loop the overhead does not occur once, but rather it occurs for every iteration. Now this may not be too much of a concern if the processing latency of the off-chip function hardware is high relative to the overhead, but it would be preferable to try and reduce the number of calls to off-chip functions to reduce the contribution the overhead latency makes to the total latency of the system.
+However, a user must be careful in where they place their off-chip function call. If placed within a loop the overhead does not occur once, but rather it occurs for remote function call. Now this may not be too much of a concern if the processing latency of the off-chip function hardware is high relative to the overhead, but it would be preferable to try and reduce the number of calls to off-chip functions to reduce the contribution the overhead latency makes to the total latency of the system.
 
-One final thing that can be discussed is the necessity for the both the MTSC and MTMC systems to instantiate two hardware modules to calculate $f(x)$. While not the case in this investigation, the hardware module for $f(x)$ may potentially be very resource intensive, specifically, mathematical functions tend to use a lot of DSPs. In the case where a single FPGA may not have enough DSPs to instantiate two modules to compute $f(x)$, you would no longer be able to create an MTSC system. As an example if each $f(x)$ module took 3 DSPs and our FPGA only had $5$, we would be one short of the required $6$. The user's options would then either be to run the system sequentially, and achieve the results of an STSC system, or it would be to instead use multi-FPGA solution and utilize an MTMC system. This would be a real-world motivation for using a multi-FPGA system, in order to get a latency reduction, and thus provides credence to the purpose of SystemNaim.
+From the \autoref{tbl:system_results}, we can see that as we increase the number of iterations the MTMC system approaches the same percentage reduction latency as the MTSC system, compared to the STSC system. This 48\% reduction represents the maximum performance gain we can get from running the program as a multi-FPGA system, and therefore a 42\% reduction, which is what is achieved when we run the system at steps = 2000, proves that SystemNaim is able to create a multi-FPGA system that lets the user achieve a latency decrease without the overhead outweighing the performance gains, which is a major contribution specified in \autoref{sec:contributions}. 
 
+\subsection{Interconnect Latency Variation}
 
+One thing of note, is that the stochastic nature of the interconnect is likely due to the polling issue mentioned in the previous investigation, however as can be seen in \autoref{tbl:system_results}, the overhead tends to be centred around an average value of 1,570 cycles which is close to the overhead measured in \autoref{tbl:spi_clk_results} for the 5MHz SPI clock, the same speed as the SPI clock in this investigation. The range of the measured overheads is 304 cycles, thus, the total overhead latency will be at most 20\% away from the average. This can be seen as an issue for programs with low latencies, but as mentioned above those programs wouldn't be advisable for SystemNaim. 
+
+\subsubsection{Too few resources for MTSC}
+
+A final thing that can be discussed is the necessity for the both the MTSC and MTMC systems to instantiate two hardware modules to calculate $f(x)$. While not the case in this investigation, the hardware module for $f(x)$ may potentially be very resource intensive, specifically, mathematical functions tend to use a lot of DSPs. In the case where a single FPGA may not have enough DSPs, or any other resource, to instantiate two modules to compute $f(x)$, you would no longer be able to create an MTSC system. As an example if each $f(x)$ module took 3 DSPs and our FPGA only had $5$, we would be one short of the required $6$. The user's options would then either be to run the system sequentially, and achieve the results of an STSC system, or it would be to instead use multi-FPGA solution and utilize an MTMC system. Therefore, SystemNaim can solve the issue of a user having FPGA boards with too few resources to implement their design. This would be a real-world motivation for using a multi-FPGA system and thus provides credence to the purpose of SystemNaim.
 
 \section{Usability}
 \label{sec:usability}
-
-\begin{itemize}
-    \item This section is a qualitative analysis on how difficult the tool is to use. 
-    \item Since there's not enough time to ask others to evaluate the tool, a comparison will be made between using the tool to make a multi-FPGA system, and starting from scratch just implementing hardware in Verilog. While it won't be completely accurate, it should be somewhat realistic as I can take inspiration from how long it took me to create certain aspects such as the interconnect.
-    \item Make sure to mention that in a pure hardware implementation you probably wouldn't create a giant state machine like the tool generations, instead you'd create a very focused piece of hardware.
-\end{itemize}
 
 One of the major motivations of SystemNaim is increasing the accessibility of multi-FPGA systems to people who may not be very hardware proficient. The way we have tried to tackle this goal is by creating a HLS tool which requires knowledge of C90 and basic programming constructs, therefore allowing the tool to be used by a larger group. 
 
@@ -292,11 +299,11 @@ Once the code has been properly modified, the user can then pass the program fil
 
 \subsubsection{Implementing the system in Quartus.}
 
-The next few parts require the use of Quartus Prime, Intel's Platform Designer and the NIOS II system. Pre-made files are provided for the Platform Designer, so the user isn't required to have an in depth undertstanding of that tool. However, the ability to assign pins and create a top level file in Quartus will be needed.
+The next few parts require the use of Quartus Prime, Intel's Platform Designer and the NIOS II system. Pre-made files are provided for the Platform Designer, so the user isn't required to have an in depth understanding of that tool. However, the ability to assign pins and create a top level file in Quartus will be needed.
 
 The following instructions will also be relatively brief, as they are not intended to be used as a guide but rather to give an overview of the complexity of creating a system. Most of these steps are pretty simple, however they can appear to be complicated to a first time user of Quartus Prime since it is a very bloated and non-self-explanatory tool. 
 
-The first thing a user will need to do is create a Quartus project and select their FPGA. They will then need to create a top level clock and assign names to 4 of the GPIO pins on their FPGA. Any names will work, but we recommend the following: SPI\_MISO, SPI\_MOSI, SPI\_SS, SPI\_CLK. Add these to the top level file, preferablly a block design file (shown in \autoref{fig:qp_pins}), and they will be used later.
+The first thing a user will need to do is create a Quartus project and select their FPGA. They will then need to create a top level clock and assign names to 4 of the GPIO pins on their FPGA. Any names will work, but we recommend the following: SPI\_MISO, SPI\_MOSI, SPI\_SS, SPI\_CLK. Add these to the top level file, preferably a block design file (shown in \autoref{fig:qp_pins}), and they will be used later.
 
 \begin{figure}[!htb]
     \centering
@@ -311,16 +318,16 @@ Now we move onto the Platform Designer. This tool allows you to quickly connect 
 
 When you open up Platform Designer, you will be prompted to select which “.qsys” file you want to open. These files save the design you have been working for, but also allow us to distribute pre-made systems. Open up the “parent\_cpu.qsys” file, and you should see something similar to \autoref{fig:pd_start}.
 
-\begin{figure}[!h]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.9\textwidth]{05_evaluation/images/pd_no_module.png}
     \caption{Platform Designer: System before we add custom hardware.}
     \label{fig:pd_start}
 \end{figure}
 
-The user can then add their own custom hardware to the system. In order to do so, they need to click “New...” in the IP Catalog, which results in another window being opened: the Component Editor. In the first tab of this window, “Component Type”, a user can specify the name of their module. More importantly, they need to go to the “Files” tab to include the files generated by SystemNaim. In this tab, they need click “Add File...” under “Synthesis Files” and select all the files generated by SystemNaim in the “out” folder\footnote{It is possible to select only the files needed by the “sysNaim\_host\_top.sv” file, aswell as the files needed by its dependencies. But this might get tedious for larger systems.} and then also add the files in the “hardware\_files/parent\_fpga” folder. The user must then find the “sysNaim\_host\_top.sv”, in the file list, and set its attribute to “Top-level file”. 
+The user can then add their own custom hardware to the system. In order to do so, they need to click “New...” in the IP Catalog, which results in another window being opened: the Component Editor. In the first tab of this window, “Component Type”, a user can specify the name of their module. More importantly, they need to go to the “Files” tab to include the files generated by SystemNaim. In this tab, they need click “Add File...” under “Synthesis Files” and select all the files generated by SystemNaim in the “out” folder\footnote{It is possible to select only the files needed by the “sysNaim\_host\_top.sv” file, as well as the files needed by its dependencies. But this might get tedious for larger systems.} and then also add the files in the “hardware\_files/parent\_fpga” folder. The user must then find the “sysNaim\_host\_top.sv”, in the file list, and set its attribute to “Top-level file”. 
 
-\begin{figure}[!h]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.9\textwidth]{05_evaluation/images/pd_sys_files.png}
     \caption{Platform Designer: Generated files added to the component editor.}
@@ -329,7 +336,7 @@ The user can then add their own custom hardware to the system. In order to do so
 
 The user can then click “Analyse Synthesis Files”, if this step does not produce any errors they can move onto the “Signals \& Interfaces” tab. This tab will likely be a mess, and it is recommended to delete all pre-existing entries on the left sub-window. The user will then need to add the interfaces and signals until it looks like \autoref{fig:pd_interfaces}. The user should take extra note of the text in grey next to each signal and interface as this denotes type and is extremely important to get correct for proper synthesis.
 
-\begin{figure}[!h]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=1\textwidth]{05_evaluation/images/pd_interfaces.png}
     \caption{Platform Designer: Complete interface \& signal list for the custom hardware}
@@ -338,7 +345,7 @@ The user can then click “Analyse Synthesis Files”, if this step does not pro
 
 Once all the signal are added, the user will need to click on the “avalon\_master” interface and set the “Address Units” to “WORDS” and the “Write wait” to “1”, shown in \autoref{fig:pd_avalon}. They will also need to select the “clock\_out” interface and set the “Clock rate” to “50000000” and enable “Clock rate known”, refer to \autoref{fig:pd_clock}.
 
-\begin{figure}[!h]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=1\textwidth]{05_evaluation/images/pd_avalon_config.png}
     \caption{Platform Designer: Avalon config}
@@ -346,18 +353,18 @@ Once all the signal are added, the user will need to click on the “avalon\_mas
 \end{figure}
 
 
-\begin{figure}[!h]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.9\textwidth]{05_evaluation/images/pd_clock.png}
     \caption{Platform Designer: Clock output config}
     \label{fig:pd_clock}
 \end{figure}
 
-A user may then click “Finish...” to save their design and exit out of the “Component Editor”. Now that their module has been added to the catalog, a user can search for their custom hardware and add it to their system. Once their module has been added, they will need to connect it to the other modules in the system. The important modules are “cpu” and “spi\_0”. The first represents the NIOS II processor, and we connect it to our module through the Custom Instruction” interface. The “spi\_0” is an IP core provided by intel to interface with an SPI channel. This module will be driving the GPIO pins, while the user's custom hardware will be controlling it and providing it data.
+A user may then click “Finish...” to save their design and exit out of the “Component Editor”. Now that their module has been added to the catalog, a user can search for their custom hardware and add it to their system. Once their module has been added, they will need to connect it to the other modules in the system. The important modules are “CPU” and “spi\_0”. The first represents the NIOS II processor, and we connect it to our module through the Custom Instruction” interface. The “spi\_0” is an IP core provided by intel to interface with an SPI channel. This module will be driving the GPIO pins, while the user's custom hardware will be controlling it and providing it data.
 
 To connect the custom hardware module, click on the dots shown in \autoref{fig:pd_connections}. They should be empty white circles initially, and then should fill when enabled. The user should then save the system and click “Generate HDL”. In the prompt that shows up, most default settings should be kept however the user should make sure “Create block symbol file (.bsf)” is enabled. “Generate” can then be clicked and in the “Platform Designer” window the user can press “Finish” to exit the tool.
 
-\begin{figure}[!h]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.9\textwidth]{05_evaluation/images/pd_connections.png}
     \caption{Platform Designer: Connections to the custom hardware}
@@ -366,9 +373,9 @@ To connect the custom hardware module, click on the dots shown in \autoref{fig:p
 
 \subsubsection{Back to Quartus}
 
-Once back in Quartus, the user will need to add the “parent\_cpu.qsys” file to the project files. They can then add their system, which will be named “parent\_cpu”, to the top-level file containing the pins. Wire up the pins to their appropriate ports on the cpu module, as shown in \autoref{fig:qp_connected}. Then add a VCC block and connect it to the “reset\_n” port. The user may then synthesize the top-level file and load it onto the FPGA.
+Once back in Quartus, the user will need to add the “parent\_cpu.qsys” file to the project files. They can then add their system, which will be named “parent\_cpu”, to the top-level file containing the pins. Wire up the pins to their appropriate ports on the CPU module, as shown in \autoref{fig:qp_connected}. Then add a VCC block and connect it to the “reset\_n” port. The user may then synthesize the top-level file and load it onto the FPGA.
 
-\begin{figure}[!h]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.9\textwidth]{05_evaluation/images/qs_cpu_connected.png}
     \caption{Quartus Prime: NIOS System connected to pins in top-level file.}
@@ -389,9 +396,9 @@ The sections starting from opening up Quartus will need to be repeated in order 
 
 \subsubsection{Running the System}
 
-Before the bitstreams are overlayed onto the FPGAs, the user should first connect the GPIO pins they assigned names to. So the SPI\_MISO pin on the parent FPGA should be connected to the SPI\_MISO pin on the child FPGA, and so on for all the other SPI pins. One this is done the FPGAs can be programmed, ready for the systems to be run.
+Before the bitstreams are downloaded onto the FPGAs, the user should first connect the GPIO pins they assigned names to. So the SPI\_MISO pin on the parent FPGA should be connected to the SPI\_MISO pin on the child FPGA, and so on for all the other SPI pins. One this is done the FPGAs can be programmed, ready for the systems to be run.
 
-To run the system, the child FPGA starts first so that it is ready to recieve a transaction from the parent FPGA. Once the child FPGA has been started, the parent FPGA can be run. When the NIOS II terminal displays the result, the system has completed operation.
+To run the system, the child FPGA starts first so that it is ready to receive a transaction from the parent FPGA. Once the child FPGA has been started, the parent FPGA can be run. When the NIOS II terminal displays the result, the system has completed operation.
 
 \subsection{Creating a Multi-FPGA System from Scratch}
 \label{sec:scratch}
@@ -403,27 +410,27 @@ Afterwards, a comparison will be made of performing the same task using SystemNa
 \subsection{Computing the Result.}
 \label{sec:dedicated_hardware_computation}
 
-The first task a user would have to complete is desiging the system which computes their desired function. Unlike programming in software, designing in hardware requires a full understanding of the system before any HDL is written.
+The first task a user would have to complete is designing the system which computes their desired function. Unlike programming in software, designing in hardware requires a full understanding of the system before any HDL is written.
 
-As an example, let us consider a module which computes the value for a function, $f(x)$. A user must consider design decisions such as, is this module combinational or sequential? Is a ready signal neccesary to tell a connected module whether this module is ready to take in data? Will I assume all modules connected to this one know the latency of this module, or will there be a done signal?
+As an example, let us consider a module which computes the value for a function, $f(x)$. A user must consider design decisions such as, is this module combinational or sequential? Is a ready signal necessary to tell a connected module whether this module is ready to take in data? Will I assume all modules connected to this one know the latency of this module, or will there be a done signal?
 
 Before the computation within the module is reasoned about, a user must decide how this module will be used by the hardware blocks connected to it. The interfaces of a module are of key importance since they determine how a module accepts data and how it should output data once it has finished computation.
 
-Even when we can start writing the hardware logic, the paradigm shift from software programming becomes larger. For loops don't neccesarily exist in Verilog the same way as normal programming languages. To implement something similar a state machine, whose computation resembles a for loop written in assembly, must be designed. However, this may not be the most optimal solution, and instead, having a FIFO as an interface input and grabbing data from it when it is available would be a better way of iterating over data. The latter solution is something very few people, outside those with experience in concurrent programming and queues, would think to implement, but it would result in a more streamlined system with less overhead states.
+Even when we can start writing the hardware logic, the paradigm shift from software programming becomes larger. For loops don't necessarily exist in Verilog the same way as normal programming languages. To implement something similar a state machine, whose computation resembles a for loop written in assembly, must be designed. However, this may not be the most optimal solution, and instead, having a FIFO as an interface input and grabbing data from it when it is available would be a better way of iterating over data. The latter solution is something very few people, outside those with experience in concurrent programming and queues, would think to implement, but it would result in a more streamlined system with less overhead states.
 
 In comparison to software programming, hardware design requires a user to put much more thought into how the modules connect rather than just what their computations consists. A single mistake in deciding which cycle to pass data from one module to another can cause a cascade of failures, resulting in the entire system being rendered useless. Even debugging is more difficult, you can't merely call your main function with some inputs and print to console in places you think the program is broken. Instead, you have to simulate your entire design, including manually creating valid transactions for you top level module, and then find the issue by following incorrect wire or register values to their source.
 
 \subsubsection{Comparison to SystemNaim}
 
-When creating a system in SystemNaim, it's exactly the same as developing software. You can write a program in C and trust that the tool will create the correct hardware which computes the same result. The main draw of HLS is that a user no longer needs to worry about timing violations or what number states are neccesary for this module, instead they can focus on the actual computation which the system needs to implement. Creating dedicated hardware to compute the Composite Simpson numerical integration would likely take a few hours, but in SystemNaim it only takes 15 minutes. This speedup in development time is crucial for implementing larger systems in hardare within a reasonable time frame.
+When creating a system in SystemNaim, it's exactly the same as developing software. You can write a program in C and trust that the tool will create the correct hardware which computes the same result. The main draw of HLS is that a user no longer needs to worry about timing violations or what number states are necessary for this module, instead they can focus on the actual computation which the system needs to implement. Creating dedicated hardware to compute the Composite Simpson numerical integration would likely take a few hours, but in SystemNaim it only takes 15 minutes. This speed-up in development time is crucial for implementing larger systems in hardware within a reasonable time frame and is one of the major contributions we say SystemNaim achieves in \autoref{sec:contributions}.
 
 However, the increase in user productivity does come at cost. The output Verilog will likely have much worse latency than hardware designed for a specific system. If an individual were to create dedicated hardware to compute the Composite Simpson numerical integration, the latency would be much lower than the system created in SystemNaim. Therefore, a user must decide if the increase in latency of the resulting hardware is worth the reduction in development times. For larger systems this potentially may be the case as it would be otherwise unfeasible to create all the hardware manually.
 
 \subsection{Converting to Multi-FPGA}
 
-The main purpose of SystemNaim is to streamline the process of creating a multi-FPGA system. But, what issues and challenges would one face if they decided to create a multi-FPGA system using only Quartus and Verilog. Firstly they would have to decide how the two FPGAs would communicate with each other. Usually this is done over a communication channel such as SPI which then begs the question: whether they would want to use Intel's SPI core, or any other communication IP core, to control their channel or create their own hardware. The latter is ill-advides unless they wish to create their own protocol, but the former usually requires an understanding of an Intel designed interface.
+The main purpose of SystemNaim is to streamline the process of creating a multi-FPGA system. But, what issues and challenges would one face if they decided to create a multi-FPGA system using only Quartus and Verilog. Firstly they would have to decide how the two FPGAs would communicate with each other. Usually this is done over a communication channel such as SPI which then begs the question: whether they would want to use Intel's SPI core, or any other communication IP core, to control their channel or create their own hardware. The latter is ill-advised unless they wish to create their own protocol, but the former usually requires an understanding of an Intel designed interface.
 
-In the case of the Intel SPI core, there is an Avalon-MM interface, which requires the user to control signals such as: address, read data, write data, read/write enable, and chipselect. All signals have their own purpose and misunderstanding any of their uses leads to an inabilty to interact with the core. Therefore, in order to use one of these cores a user has to design a hardware module which correctly interfaces with the core so that they are able to send and recieve data over the channel. Sometimes, the provided core on the child FPGA may have a slightly different implementation, which requires an additional hardware module to be created in order to interface with it correctly.
+In the case of the Intel SPI core, there is an Avalon-MM interface, which requires the user to control signals such as: address, read data, write data, read/write enable, and chipselect. All signals have their own purpose and misunderstanding any of their uses leads to an inability to interact with the core. Therefore, in order to use one of these cores a user has to design a hardware module which correctly interfaces with the core so that they are able to send and receive data over the channel. Sometimes, the provided core on the child FPGA may have a slightly different implementation, which requires an additional hardware module to be created in order to interface with it correctly.
 
 But once the required interfacing hardware is created, the user must then decide what data they wish to send over. Sending more data over the channel allows for more processing to occur on the child FPGA, however this incurs a latency cost as explored in \autoref{sec:interconnect} and thus sending too much data will slow down the system. On the other hand, sending too little data will reduce the amount of processing that can be done on the child FPGA as it won't have anything to actually process. Potentially, the designer could only use the communication channel to send commands to the off-chip and not any actual data. This would mean that all data would need to created on the child FPGA, or known by it at compile time, thus drastically reducing its versatility at run-time. Using the Composite Simpson example once again, the designer could decider that the values of $a$, $b$, $n$, and $h$ are never going to change and thus no data needs to be sent to the child FPGA when it's computing its sum. However, this would mean that if the user wanted to integrate over a different part of the function they would need to recompile the entire system. 
 
@@ -437,17 +444,45 @@ Overall, creating a multi-FPGA system is not just about setting up a communicati
 
 \subsubsection{Comparison to SystemNaim}
 
-In SystemNaim, we use function calls as a method of allowing the user to decide what processing occurs off and on-chip. This makes it much easier for new users to split their program across multiple FPGAs. They don't have to worry about interfacing correctly with the SPI core, or creating a new data path to accomodate for the off-chip processing. Instead, they can treat it as a normal function call and nothing more. Ofcourse, following from \autoref{sec:sys_perf}, there are recommendations that the user should follow when creating their program, but they are free to explore designs as they wish, and they can experitment with choosing which parts of their program to process off-chip without having to go through the hassle of rehauling their entire system, if they had chosen to do it manually.
+In SystemNaim, we use function calls as a method of allowing the user to decide what processing occurs off and on-chip. This makes it much easier for new users to split their program across multiple FPGAs, which is a requirement of the HLS tool specified in \autoref{sec:hls_design}. They don't have to worry about interfacing correctly with the SPI core, or creating a new data path to accommodate for the off-chip processing. Instead, they can treat it as a normal function call and nothing more. Of course, following from \autoref{sec:sys_perf}, there are recommendations that the user should follow when creating their program, but they are free to explore designs as they wish, and they can experiment with choosing which parts of their program to process off-chip without having to go through the hassle of re-hauling their entire system, if they had chosen to do it manually.
 
 It goes without saying, though I will say it, that there aren't only advantages to using SystemNaim. The user is limited to only being able to design functions with two inputs, which does limit the potential use cases. If they had designed their own hardware system, they would be able to transmit as much data as possible. SystemNaim also forces each transaction across the channel to be 32 bits long, in order to ensure a full integer can be sent across. However, some systems may not need to full 32 bits which results in unneeded additional latency.
 
-Once again, the decision to use SystemNaim or not is a balance between latency and development time. A manually designed system, focusing on one application, will be faster and will use less resources. But, it may take much longer to create. When creating SystemNaim it took us a week to create the hardware to control communication channel and even longer to debug it. Therefore, I would posit, that even though it may result in latency increases, the time saved from using SystemNaim, and any HLS tool dervied from it, will allow for much larger systems to be created and for more experimentation on multi-FPGA platforms to take place.
+Once again, the decision to use SystemNaim or not is a balance between latency and development time. A manually designed system, focusing on one application, will be faster and will use less resources. But, it may take much longer to create. When creating SystemNaim it took us a week to create the hardware to control communication channel and even longer to debug it. Therefore, I would posit, that even though it may result in latency increases, the time saved from using SystemNaim, and any HLS tool derived from it, will allow for much larger systems to be created and for more experimentation on multi-FPGA platforms to take place.
 
 \subsection{Conclusion}
 
-I hope it is clear from the sections above that while SystemName does create less optimized systems, than dedicated hardware, it does streamline the development process and reduce the time taken to get a system running. One last note that is important to this analysis, regards to the steps shown in \autoref{sec:design_example}. Many of the steps shown when setting up a SystemNaim system are not related to the developemnt of the program, but rather they illustrate the overhead that comes with getting it to run. 
+The sections above show that while SystemNaim does create less optimized systems, than dedicated hardware, it does streamline the development process and reduce the time taken to get a system running, which is one of the primary contributions mentioned in \autoref{sec:contributions}. To further illustrate this two example project timelines are shown in Tables \ref{tbl:time_sysNaim} and \ref{tbl:time_custom}. As a disclaimer, these values have been chosen from my own experience, they may vary from person to person, and external factors may also affect, for example if the FPGA had a hardware defect and extra time was spent debugging that. The durations stated in \autoref{tbl:time_sysNaim}, assume the user is following the design example above for the first time, and have no knowledge of their FPGA's pin layout. The overhead times can decrease greatly as the user becomes more proficient in these tools, leaving only the development as the main contributing factor. \autoref{tbl:time_custom} assumes the individual implementing the system has an amount of experience with hardware development close to ours, as the time values are an estimate of how long it would take us to implement these parts. We also have assumed that the system design already accounts for off-chip processing, and no overhaul is required when reaching the implementation of the channel starts. Finally, it should be noted that a large part of the time spent is mostly in design and debugging rather than the writing of HDL.
 
-Tasks such as; finding a way to control the system, connecting the program hardware to the SPI core, assinging pins to use as the communication channels, would still be present if a user decided to implement their own system from scratch. Potentially the steps regarding NIOS II could be avoided, but then additional effort would be needed to find a way of controlling and testing the system. In addition, pre-made files which streamline these taks would also not be available and the designer would have to gain a deeper understanding of all the aformentioned tools to complete their system. Therfore, SystemNaim can be said to not only streamline the developemnt process but also the process of getting the system actually running on an FPGA.
+From these tables we can see that SystemNaim would save a designer, days in development time and this would be for a relatively simple system. Larger systems take even longer to design in Verilog and Quartus, but the increase in time for SystemNaim or other HLS tools would be far less. Therefore, with some leniency, it can be concluded that we have proved our 3rd contributions specified in \autoref{sec:contributions}.
+
+
+\begin{table}[]
+\begin{tabular}{l|l|l}
+Task                                 & Time Spent & Cumulative Time Spent \\ \hline
+Programming System                   & 1h         & 1h                    \\
+Creating System in Platform Designer & 30m        & 1h 30m                \\
+Assigning Pins in Quartus            & 1h         & 2h 30m                \\
+Setting up NIOS II environment       & 1h         & 3h 30m               
+\end{tabular}
+\caption{Time to taken to create a multi-FPGA system in SystemNaim, assuming beginner FPGA knowledge.}
+\label{tbl:time_sysNaim}
+\end{table}
+
+
+\begin{table}[]
+\begin{tabular}{l|l|l}
+Task                               & Time Spent & Cumulative Time Spent \\ \hline
+Implementing Computational System  & 3d         & 3d                    \\
+Implementing Communication Channel & 3d         & 6d                    \\
+Overhead using tools               & 2h         & 6d 2h                
+\end{tabular}
+\caption{Time to taken to create a multi-FPGA system in with just Verilog and Quartus, assuming intermediate FPGA knowledge.}
+\label{tbl:time_custom}
+\end{table}
+
+
+One last note that is important to this analysis, regards to the steps shown in \autoref{sec:design_example}. Many of the steps shown when setting up a SystemNaim system are not related to the development of the program, but rather they illustrate the overhead that comes with getting it to run. Tasks such as; finding a way to control the system, connecting the program hardware to the SPI core, assigning pins to use as the communication channels, would still be present if a user decided to implement their own system from scratch. Potentially the steps regarding NIOS II could be avoided, but then additional effort would be needed to find a way of controlling and testing the system. In addition, pre-made files which streamline these tasks would also not be available and the designer would have to gain a deeper understanding of all the aforementioned tools to complete their system. Therefore, SystemNaim can be said to not only quicken the development process but also the process of getting the system actually running on an FPGA.
 
 
 

@@ -20,3 +20,6 @@ Vivado
 LegUp
 NIOS
 splitfpga
+GPIO
+Verilator
+chipselect
