@@ -5,13 +5,14 @@
 
 The field of multi-FPGAs has been heavily researched however there are few papers interested in utilising HLS to streamline the process of implementing a multi-FPGA. \cite{564741} and \cite{707888} are examples of papers which do concern themselves with these topics but both were written over twenty years ago.
 
-Therefore, it is of interest to this project to do a review of the most up to date research in fields surrounding and including its scope. This chapter will go through four different topics:
+Therefore, it is of interest to this project to do a review of the most up to date research in fields surrounding and including its scope. This chapter will go through five different topics:
 
 \begin{itemize}
     \item Related works.
     \item HLS tools and their optimisations.
     \item FPGA-to-FPGA communication protocols.
     \item Multi-FPGA Logic Partitioning.
+    \item RPC systems.
 \end{itemize}
 
 Thus, hopefully, giving the reader a better overview of what is possible if this project were to reach its full potential.
@@ -92,3 +93,9 @@ The second approach is an automatic split, and it seems that papers regarding th
 Another aspect to logic partitioning, automatic or manual, is the method by which the workload is distributed. Once again, there seem to be two main approaches. One is for a host device to control each FPGA within system, supplying it with data and also telling it when to start execution. This seems to be the case for \cite{707888} and \cite{10.1145/3337821.3337846}.
 
 On the other hand, \cite{10.1145/3020078.3021739, 10.1145/3358192, soton261305} choose to allow each FPGA to perform its own computation and communicate, whenever it needs to, with other devices on the network. This method while having more critical points, is much more scalable than the first approach which results in a constraint being put upon the system by the hosts computational ability.
+
+\section{RPC Systems}
+
+RPC systems have become relatively ubiquitous with both Go\cite{go-rpc} and Java\cite{java-rpc} providing libraries, within their core packages, to build such systems. It may seem odd to relate RPCs to multi-FPGA systems, but in actuality a remote procedure call can be seen as a solution for distributing computation across multiple CPUs instead of FPGAs. 
+
+\cite{rpc-system} details how an RPC system works, and explains that there is a server which holds a repository of routines. These routines can then be called upon by a client, in order to perform the computation on the server and for the result to be then passed back to the client.
